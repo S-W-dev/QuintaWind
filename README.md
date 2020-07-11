@@ -1,4 +1,4 @@
-# Pool Controller
+# QuintaWind
 
 ## What is it?
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The Pool Controller is basically a server that runs on a raspberry pi zero and controlls pentair based pool systems. Because the Pentair system is incredibly bad, we decided to make our own system that allows you to quickly, easily, and efficiently interface with their hardware. Although some features like the web control panel may not function correctly if you are not on the same network as the Pi, you can always just take the Pi with you to a hotel room or similar and it will work just fine.
