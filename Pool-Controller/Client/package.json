@@ -1,0 +1,16 @@
+{
+  "name": "pool-controller",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Concrete Games",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mysql": "^2.18.1",
+    "node-screenlogic": "^1.5.0"
+  }
+}
