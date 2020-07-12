@@ -119,15 +119,18 @@ let connect = (client) => {
 
 
 //express
-app.get("/", (req, res) => {
+app.get("/data", (req, res) => {
 
     conn.query("select * from pool_data", (err, rows) => {
 
         res.send("<textarea style='width:100%;height:100%;'>" + JSON.stringify(rows, null, "\t") + "</textarea>");
 
     });
+    
 
 });
+
+app.use(express.static(__dirname + "/html"));
 
 app.listen(3000);
 
