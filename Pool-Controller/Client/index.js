@@ -20,7 +20,7 @@ let StartPentair = () => {
         remote.close();
         if (_unit && _unit.gatewayFound) {
             unit = _unit;
-            console.log(unit);
+            //console.log(unit);
             console.log('unit ' + remote.systemName + ' found at ' + _unit.ipAddr + ':' + _unit.port);
         } else {
             console.log('no unit found by that name');
@@ -53,63 +53,53 @@ let Start = () => {
                 let connection = new ScreenLogic.UnitConnection(unit.port, unit.ipAddr, settings.password);
                 console.log("connecting");
                 connect(connection);
+                var logged = false;
+                setInterval(() => {
+                    if (Object.keys(obj).length == 14) {
+                        if (!logged) {
+                            console.table(obj);
+                            //console.log(obj);
+                        }
+                        logged = true;
+                    }
+                }, 1000);
             }
         }, 1000);
     });
 }
-
+let obj;
 let connect = (client) => {
-    var obj = {};
+    obj = {};
     client.on('loggedIn', function () {
         this.getVersion();
     }).on('version', function (version) {
         this.getPoolStatus();
-        console.log(' version=' + version.version);
         obj.version = version.version;
     }).on('poolStatus', function (status) {
         this.getChemicalData();
-        console.log(' pool ok=' + status.ok);
-        console.log(' pool temp=' + status.currentTemp[0]);
-        console.log(' air temp=' + status.airTemp);
-        console.log(' salt ppm=' + status.saltPPM);
-        console.log(' pH=' + status.pH);
-        console.log(' saturation=' + status.saturation);
-        console.log(' spa active=' + status.isSpaActive());
-        console.log(' pool active=' + status.isPoolActive());
         obj.status = status.ok;
         obj.currentTemp = status.currentTemp[0];
         obj.airTemp = status.airTemp;
         obj.saltPPM = status.saltPPM;
         obj.pH = status.pH;
         obj.saturation = status.saturation;
-        obj.spa = {
-            isActive: status.isSpaActive()
-        };
-        obj.pool = {
-            isActive: status.isPoolActive()
-        };
+        obj.isSpaActive = status.isSpaActive();
+        obj.isPoolActive = status.isPoolActive();
     }).on('chemicalData', function (chemData) {
         this.getSaltCellConfig();
-        console.log(' calcium=' + chemData.calcium);
-        console.log(' cyanuric acid=' + chemData.cyanuricAcid);
-        console.log(' alkalinity=' + chemData.alkalinity);
         obj.calcium = chemData.calcium;
         obj.cyanuricAcid = chemData.cyanuricAcid;
         obj.alkalinity = chemData.alkalinity;
     }).on('saltCellConfig', function (saltCellConfig) {
         this.getControllerConfig();
-        console.log(' salt cell installed=' + saltCellConfig.installed);
         obj.saltCellInstalled = saltCellConfig.installed;
     }).on('controllerConfig', function (config) {
-        console.log(' controller is in celsius=' + config.degC);
         obj.degC = config.degC;
         client.close();
     }).on('loginFailed', function () {
-        console.log(' unable to login (wrong password?)');
         obj.isError = true;
         obj.error = 'unable to login (wrong password?)';
         client.close();
-        return obj;
     });
 
     client.connect();
