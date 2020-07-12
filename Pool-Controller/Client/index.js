@@ -83,10 +83,10 @@ let connect = (client) => {
         obj.pH = status.pH;
         obj.saturation = status.saturation;
         obj.spa = {
-            isActive: isSpaActive()
+            isActive: status.isSpaActive()
         };
         obj.pool = {
-            isActive: isPoolActive()
+            isActive: status.isPoolActive()
         };
     }).on('chemicalData', function (chemData) {
         this.getSaltCellConfig();
