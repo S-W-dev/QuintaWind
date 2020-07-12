@@ -94,7 +94,7 @@ let connect = (client) => {
         console.log(' cyanuric acid=' + chemData.cyanuricAcid);
         console.log(' alkalinity=' + chemData.alkalinity);
         obj.calcium = chemData.calcium;
-        obj.cyanuricAcid = chem.cyanuricAcid;
+        obj.cyanuricAcid = chemData.cyanuricAcid;
         obj.alkalinity = chemData.alkalinity;
     }).on('saltCellConfig', function (saltCellConfig) {
         this.getControllerConfig();
