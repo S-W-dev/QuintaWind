@@ -1,1 +1,19 @@
-test
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>QuintaWind</title>
+    <link href="index.css" rel="stylesheet" />
+</head>
+<body>
+    <h1 id="Title">Control Panel</h1>
+    <div id="data-grid">
+        <p class="grid-item">Pool Temperature</p>
+        <input id="poolTempSlider" class="grid-item" type="range" name="poolTemp" min=60 max=85 value=75 />
+        <p id="poolTempLabel" class="grid-item">75</p>
+
+        <p class="grid-item">Spa Temperature</p>
+        <input id="spaTempSlider" class="grid-item" type="range" name="spaTemp" min=60 max=100 value=85 />
+        <p id="spaTempLabel" class="grid-item">85</p>
+    </div>
+    <script src="index.js"></script>
+</body>
+</html>
