@@ -14,8 +14,8 @@ let conn = mysql.createConnection(settings.mysqlconnection);
 
 let unit;
 
-let StartPentair = () => {
-    let remote = new ScreenLogic.RemoteLogin(settings.pentair);
+let StartPentair = (pentair, password) => {
+    let remote = new ScreenLogic.RemoteLogin(pentair);
     remote.on('gatewayFound', function (_unit) {
         remote.close();
         if (_unit && _unit.gatewayFound) {
@@ -35,30 +35,38 @@ let Start = () => {
     conn.connect(function (err) {
         if (err) throw err;
 
-        //create database if it doesnt exist yet
-        conn.query(`SHOW DATABASES LIKE 'pentair';`, function (err, result) {
-            if (err) throw err;
-            if (result.length != 1) {
-                console.log("Pentair database doesn't exist. Creating it now...");
-                conn.query("CREATE DATABASE pentair", function (err, result) {
-                    if (err) throw err;
-                });
-            }
-        });
-
         // loop
-        StartPentair();
+        let password;
+        conn.query(`SELECT pentair, password FROM login`, (err, result) => {
+            if (err) throw err;
+            console.log("Pentair device: " + result[0].pentair);
+            console.log("Pentair password: " + result[0].password);
+            StartPentair(result[0].pentair);
+            password = result[0].password;
+        });
         setTimeout(() => {
             if (unit != undefined) {
-                let connection = new ScreenLogic.UnitConnection(unit.port, unit.ipAddr, settings.password);
+                let connection = new ScreenLogic.UnitConnection(unit.port, unit.ipAddr, password);
                 console.log("connecting");
                 connect(connection);
                 var logged = false;
                 setInterval(() => {
-                    if (Object.keys(obj).length == 14) {
+                    if (Object.keys(obj).length == 15) {
                         if (!logged) {
                             console.table(obj);
-                            //console.log(obj);
+                            if (!obj.isPoolActive) {
+                                obj.poolTemp = obj.poolTemp + " (Last)";
+                            }
+                            if (!obj.isSpaActive) {
+                                obj.spaTemp = obj.spaTemp + " (Last)";
+                            }
+                            values = [];
+                            values.push(Object.values(obj));
+                            console.log(values);
+                            conn.query(`INSERT INTO pool_data (version, status, poolTemp, spaTemp, airTemp, saltPPM, pH, saturation, isSpaActive, isPoolActive, calcium, cyanuricAcid, alkalinity, saltCellInstalled, degC) VALUES (?)`, values, (err, result) => {
+                                if (err) throw err;
+                                console.log("Rows affected: " + result.affectedRows);
+                            });
                         }
                         logged = true;
                     }
@@ -75,10 +83,12 @@ let connect = (client) => {
     }).on('version', function (version) {
         this.getPoolStatus();
         obj.version = version.version;
+        console.log(version.version);
     }).on('poolStatus', function (status) {
         this.getChemicalData();
         obj.status = status.ok;
-        obj.currentTemp = status.currentTemp[0];
+        obj.poolTemp = status.currentTemp[0];
+        obj.spaTemp = status.currentTemp[1];
         obj.airTemp = status.airTemp;
         obj.saltPPM = status.saltPPM;
         obj.pH = status.pH;

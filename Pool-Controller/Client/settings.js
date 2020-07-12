@@ -1,12 +1,25 @@
-exports.settings = {
+const mysql = require('mysql');
 
-    pentair: 'Pentair: '+'0F-50-40',
-    password: '',
+let settings = {
 
     mysqlconnection: {
         host: "127.0.0.1",
         user: "root",
-        password: ""
+        password: "",
+        database: "pentair"
     }
 
-};
+}
+
+let conn = mysql.createConnection(settings.mysqlconnection);
+
+
+
+conn.query("SELECT pentair, password FROM login", (err, rows) => {
+
+    settings.pentair = rows[0].pentair;
+    settings.password = rows[0].password;
+
+});
+
+exports.settings = settings;
