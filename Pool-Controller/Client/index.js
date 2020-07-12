@@ -7,12 +7,13 @@
 
 const mysql = require('mysql');
 const ScreenLogic = require("node-screenlogic");
-const { static } = require('express');
+const express = require('express');
+const app = express();
 const settings = require("./settings").settings;
 
 let conn = mysql.createConnection(settings.mysqlconnection);
-
 let unit;
+let obj;
 
 let StartPentair = (pentair, password) => {
     let remote = new ScreenLogic.RemoteLogin(pentair);
@@ -62,7 +63,7 @@ let Start = () => {
                             }
                             values = [];
                             values.push(Object.values(obj));
-                            console.log(values);
+                            //console.log(values);
                             conn.query(`INSERT INTO pool_data (version, status, poolTemp, spaTemp, airTemp, saltPPM, pH, saturation, isSpaActive, isPoolActive, calcium, cyanuricAcid, alkalinity, saltCellInstalled, degC) VALUES (?)`, values, (err, result) => {
                                 if (err) throw err;
                                 console.log("Rows affected: " + result.affectedRows);
@@ -75,7 +76,7 @@ let Start = () => {
         }, 1000);
     });
 }
-let obj;
+
 let connect = (client) => {
     obj = {};
     client.on('loggedIn', function () {
@@ -115,5 +116,19 @@ let connect = (client) => {
     client.connect();
 
 }
+
+
+//express
+app.get("/", (req, res) => {
+
+    conn.query("select * from pool_data", (err, rows) => {
+
+        res.send("<textarea style='width:100%;height:100%;'>" + JSON.stringify(rows, null, "\t") + "</textarea>");
+
+    });
+
+});
+
+app.listen(3000);
 
 Start();
