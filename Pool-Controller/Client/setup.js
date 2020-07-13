@@ -2,9 +2,10 @@ const mysql = require('mysql');
 
 let settings = {
 
-    pentair: 'Pentair: ' + '0F-50-40',
-    password: '',
-    interval: 1000 * 30 /*30s*/, /* 1000 * 60 * 1  ==  one minute*/
+    pentair: process.env.pentair||'Pentair: ' + '0F-50-40',
+    password: process.env.password||'',
+    interval: process.env .interval||1000 * 30 /*30s*/ , /* 1000 * 60 * 1  ==  one minute*/
+    port: 3000,
 
     mysqlconnection: {
         host: "127.0.0.1",
@@ -37,7 +38,7 @@ conn.query(`SHOW DATABASES LIKE 'pentair';`, function (err, result) {
             if (err) throw err;
             //conn = mysql.createConnection(settings.mysqlconnection);
             conn.query("USE pentair", (err, result) => {});
-            conn.query(`CREATE TABLE settings (pentair VARCHAR(255), password VARCHAR(255), \`interval\` VARCHAR(255), jets VARCHAR(255), waterfalls VARCHAR(255))`, function (err, result) {
+            conn.query(`CREATE TABLE settings (pentair VARCHAR(255), password VARCHAR(255), \`interval\` VARCHAR(255), port VARCHAR(255), jets VARCHAR(255), waterfalls VARCHAR(255))`, function (err, result) {
                 if (err) throw err;
             });
 
@@ -60,7 +61,7 @@ setTimeout(()=>{
         conn.end();
         conn = mysql.createConnection(settings.mysqlconnection1);
         conn.connect((err) => {
-            conn.query(`INSERT INTO settings (pentair, password, \`interval\`, jets, waterfalls) VALUES ('${settings.pentair}', '${settings.password}', '${settings.interval}', '${settings.jets}', '${settings.waterfalls}')`, (err, result) => {
+            conn.query(`INSERT INTO settings (pentair, password, \`interval\`, port, jets, waterfalls) VALUES ('${settings.pentair}', '${settings.password}', '${settings.interval}', '${settings.port}', '${settings.jets}', '${settings.waterfalls}')`, (err, result) => {
                 if (err) throw err;
             });
 

@@ -9,10 +9,17 @@ const mysql = require('mysql');
 const ScreenLogic = require("node-screenlogic");
 const express = require('express');
 const app = express();
-var settings = require("./settings").settings;
+const settings = require("./settings").settings;
 const url = require('url');
+const socket = require('socket.io');
+const http = require("http");
 
 let conn = mysql.createConnection(settings.mysqlconnection);
+let server = http.createServer(app);
+let io = socket(server);
+
+let port = settings.port;
+
 let unit;
 let obj;
 let THIS;
@@ -290,6 +297,6 @@ function turnOffLights() {
     THIS.sendLightCommand(0, color_codes.off);
 }
 
-
-app.listen(3000);
+//console.log(settings.port);
+server.listen(3000);
 Start();

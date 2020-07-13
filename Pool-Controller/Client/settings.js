@@ -25,6 +25,8 @@ conn.query("SELECT * FROM settings", (err, rows) => {
     settings.password = row.password;
     settings.interval = parseInt(row.interval);
 
+    settings.port = parseInt(row.port);
+
     settings.jets = parseInt(row.jets);
     settings.waterfalls = parseInt(row.waterfalls);
 
