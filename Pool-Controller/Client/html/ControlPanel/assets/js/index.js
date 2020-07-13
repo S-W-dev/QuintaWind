@@ -45,10 +45,10 @@ waterfalls.addEventListener('input', function (evt) {
 cleaning.addEventListener('input', function (evt) {
     if (this.checked) {
         cleaningLabel.innerHTML = "Enabled";
-        Circuit("cleaning", "on");
+        Circuit("cleaner", "on");
     } else {
         cleaningLabel.innerHTML = "Disabled";
-        Circuit("cleaning", "off");
+        Circuit("cleaner", "off");
     }
 });
 
@@ -77,7 +77,7 @@ socket.on('circuit', (data) => {
                 jetsLabel.checked = false;
             }
             break;
-        case "cleaning":
+        case "cleaner":
             if (data.value == "on") {
                 cleaningLabel.checked = true;
             } else {
