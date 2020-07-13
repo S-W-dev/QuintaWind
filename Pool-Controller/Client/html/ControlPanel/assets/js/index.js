@@ -1,7 +1,7 @@
 const socket = io('192.168.0.159:3000');
 
-let poolTemp = document.getElementById("PoolTemp");
-let spaTemp = document.getElementById("SpaTemp");
+//let poolTemp = document.getElementById("PoolTemp");
+//let spaTemp = document.getElementById("SpaTemp");
 
 let jets = document.getElementById("Jets");
 let waterfalls = document.getElementById("Waterfalls");
@@ -14,27 +14,51 @@ let spaTempLabel = document.getElementById("SpaTempLabel");
 //let //WaterfallsLabel = document.getElementById("//WaterfallsLabel");
 //let ////cleaningLabel = document.getElementById("////cleaningLabel");
 
-$(".arc-slider").roundSlider({
+$("#pool").roundSlider({
     sliderType: "min-range",
     circleShape: "pie",
     value: 75,
     startAngle: 315,
     editableTooltip: true,
-    radius: ($(".arc-slider").width()-10)/2,
+    radius: ($(".arc-slider").width() - 10) / 2,
     width: 6,
     handleSize: "+32",
     tooltipFormat: function (args) {
+        console.log(args.value);
+        socket.emit("circuit", {
+            circuit: "pool",
+            value: args.value
+        })
         return args.value + "&deg";
     }
 });
 
-poolTemp.addEventListener('input', function (evt) {
-    poolTempLabel.innerHTML = this.value;
+$("#spa").roundSlider({
+    sliderType: "min-range",
+    circleShape: "pie",
+    value: 75,
+    startAngle: 315,
+    editableTooltip: true,
+    radius: ($(".arc-slider").width() - 10) / 2,
+    width: 6,
+    handleSize: "+32",
+    tooltipFormat: function (args) {
+        console.log(args.value);
+        socket.emit("circuit", {
+            circuit: "spa",
+            value: args.value
+        })
+        return args.value + "&deg";
+    }
 });
 
-spaTemp.addEventListener('input', function (evt) {
-    spaTempLabel.innerHTML = this.value;
-});
+// poolTemp.addEventListener('input', function (evt) {
+//     poolTempLabel.innerHTML = this.value;
+// });
+
+// spaTemp.addEventListener('input', function (evt) {
+//     spaTempLabel.innerHTML = this.value;
+// });
 
 jets.addEventListener('input', function (evt) {
     if (this.checked) {
@@ -75,7 +99,8 @@ socket.on('response', (data) => {
 });
 
 socket.on('circuit', (data) => {
-    var circuit = data.circuit, value = data.value;
+    var circuit = data.circuit,
+        value = data.value;
     console.log(data.circuit);
     switch (circuit) {
         case "waterfalls":
@@ -111,5 +136,8 @@ socket.on('circuit', (data) => {
 
 Circuit = (circuitName, value) => {
     console.log("Changed " + circuitName);
-    socket.emit('circuit', { "circuit": circuitName, "value": value });
+    socket.emit('circuit', {
+        "circuit": circuitName,
+        "value": value
+    });
 }

@@ -29,6 +29,8 @@ conn.query("SELECT * FROM settings", (err, rows) => {
 
     settings.jets = parseInt(row.jets);
     settings.waterfalls = parseInt(row.waterfalls);
+    settings.pool = parseInt(row.pool);
+    settings.spa = parseInt(row.spa);
 
 });
 

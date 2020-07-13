@@ -21,8 +21,19 @@ let settings = {
     },
 
     //circuits
+    spa: 500,
     jets: 501,
-    waterfalls: 502
+    waterfalls: 502,
+    pool: 505,
+
+    default: {
+        spa: '101',
+        pool: '83',
+        waterfalls: 'off',
+        jets: 'off',
+        lights: 'off',
+        cleaner: 'off'
+    }
     
 }
 
@@ -38,11 +49,11 @@ conn.query(`SHOW DATABASES LIKE 'pentair';`, function (err, result) {
             if (err) throw err;
             //conn = mysql.createConnection(settings.mysqlconnection);
             conn.query("USE pentair", (err, result) => {});
-            conn.query(`CREATE TABLE settings (pentair VARCHAR(255), password VARCHAR(255), \`interval\` VARCHAR(255), port VARCHAR(255), jets VARCHAR(255), waterfalls VARCHAR(255))`, function (err, result) {
+            conn.query(`CREATE TABLE settings (pentair VARCHAR(255), password VARCHAR(255), \`interval\` VARCHAR(255), port VARCHAR(255), spa VARCHAR(255), jets VARCHAR(255), waterfalls VARCHAR(255), pool VARCHAR(255))`, function (err, result) {
                 if (err) throw err;
             });
 
-            conn.query(`CREATE TABLE circuit_history (waterfalls VARCHAR(255), jets VARCHAR(255), cleaner VARCHAR(255), lights VARCHAR(255))`, function (err, result) {
+            conn.query(`CREATE TABLE circuit_history (waterfalls VARCHAR(255), jets VARCHAR(255), cleaner VARCHAR(255), lights VARCHAR(255), pool VARCHAR(255), spa VARCHAR(255))`, function (err, result) {
                 if (err) throw err;
             });
 
@@ -65,16 +76,13 @@ setTimeout(()=>{
         conn.end();
         conn = mysql.createConnection(settings.mysqlconnection1);
         conn.connect((err) => {
-            conn.query(`INSERT INTO settings (pentair, password, \`interval\`, port, jets, waterfalls) VALUES ('${settings.pentair}', '${settings.password}', '${settings.interval}', '${settings.port}', '${settings.jets}', '${settings.waterfalls}')`, (err, result) => {
+            conn.query(`INSERT INTO settings (pentair, password, \`interval\`, port, spa, jets, waterfalls, pool) VALUES ('${settings.pentair}', '${settings.password}', '${settings.interval}', '${settings.port}', '${settings.spa}', '${settings.jets}', '${settings.waterfalls}', '${settings.pool}')`, (err, result) => {
                 if (err) throw err;
             });
 
-            conn.query(`INSERT INTO circuit_history (waterfalls, jets, cleaner, lights) VALUES ('off', 'off', 'off', 'off')`, (err, result) => {
+            conn.query(`INSERT INTO circuit_history (waterfalls, jets, cleaner, lights, spa, pool) VALUES ('${settings.default.waterfalls}', '${settings.default.jets}', '${settings.default.cleaner}', '${settings.default.lights}', '${settings.default.spa}', '${settings.default.pool}')`, (err, result) => {
                 if (err) throw err;
             });
-
-            //console.log("Added username and password to database");
-
             conn.end();
         });
     } else {

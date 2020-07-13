@@ -13,6 +13,7 @@ const settings = require("./settings").settings;
 const url = require('url');
 const socket = require('socket.io');
 const http = require("http");
+const { SLSetHeatSetPointMessage } = require('node-screenlogic/messages');
 
 let conn = mysql.createConnection(settings.mysqlconnection);
 let server = http.createServer(app);
@@ -131,6 +132,7 @@ let connect = (client) => {
         obj.degC = config.degC;
         //client.close();
         //console.log(config);
+        //console.log(config.bodyArray);
         this.getEquipmentConfiguration();
         //console.log(config.getCircuitByDeviceId(settings.waterfalls));
     }).on('equipmentConfiguration', (config) => {
@@ -238,6 +240,42 @@ app.get("/circuit/*", (req, res) => {
                     break;
             }
             break;
+            case "pool":
+                switch (value) {
+                    case "on":
+                        //turn on heater TODO
+                        break;
+                    case "off":
+                        //turn off heater TODO
+                        break;
+                    default:
+                        console.log("Pool: " + value);
+                        try {
+                            value = parseInt(value);
+                            setPoolSetPoint(value);
+                            res.send("Sucess!");
+                        } catch {
+                            res.send("Invalid value")
+                        }
+                }
+                break;
+            case "spa":
+                switch (value) {
+                    case "on":
+                        //turn on heater TODO
+                        break;
+                    case "off":
+                        //turn off heater TODO
+                        break;
+                    default:
+                        try {
+                            value = parseInt(value);
+                            setSpaSetPoint(value);
+                        } catch {
+                            res.send("Invalid value")
+                        }
+                }
+                break;
             case "lights":
             if (Object.keys(color_codes).includes(value)) {
                 changePoolColor(value);
@@ -256,6 +294,31 @@ app.get("/circuit/*", (req, res) => {
     }
 
 });
+
+app.get("/cp", (req, res) => {
+
+    res.send("<script>window.location.href='/controlpanel';</script>");
+
+});
+
+app.get("/", (req, res) => {
+
+    res.send("<script>window.location.href='/controlpanel';</script>");
+
+});
+
+app.get("/reset", (req, res) => {
+    mysql.createConnection({
+        host: "127.0.0.1",
+        user: "root",
+        password: ""
+    }).query("drop database pentair;", (err, result) => {
+        if (err) {res.send(err); throw err;}
+        else res.send(result);
+    });
+    console.log("\n\n\n\n\n\n\nPlease Run 'node setup.js' before next launch.\n\n\n\n\n\n\n")
+    process.exit(1);
+})
 
 app.use(express.static(__dirname + "/html"));
 
@@ -305,6 +368,15 @@ function updateValues(data) {
         conn.query(`update circuit_history set ${data.circuit}= '${data.value}'`, (err, result) => {
             if (err) throw err;
         });
+}
+
+function setPoolSetPoint(setpoint) {
+    console.log(setpoint);
+    THIS.setSetPoint(settings.pool, 0, setpoint);
+}
+
+function setSpaSetPoint(setpoint) {
+    THIS.setSetPoint(settings.spa, 1, setpoint);
 }
 
 function turnOnWaterFalls() {
