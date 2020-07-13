@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Page</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body>
+    <h1 class="text-center" style="padding-top: 16px; width: 100%;">QuintaWind Control Panel</h1>
+    <div class="table-responsive" style="width: 100%;">
+        <table class="table">
+            <tbody style="width: 100%;">
+                <tr>
+                    <td class="text-center" style="width: 33%;">
+                        <p style="margin-bottom: 0px;">Pool Temperature</p>
+                    </td>
+                    <td class="text-center" style="width: 33%;"><input id="PoolTemp" class="custom-range" type="range" value="75" min="60" max="85" step="1" name="PoolTemp"></td>
+                    <td class="text-center" style="width: 33%;">
+                        <p id="PoolTempLabel" style="margin-bottom: 0px;">75</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-center" style="width: 33%;">
+                        <p style="margin-bottom: 0px;">Spa Temperature</p>
+                    </td>
+                    <td class="text-center" style="width: 33%;"><input id="SpaTemp" class="custom-range" type="range" value="75" min="60" max="85" step="1"></td>
+                    <td class="text-center" style="width: 33%;">
+                        <p id="SpaTempLabel" style="margin-bottom: 0px;">75</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-center" style="width: 33%;">
+                        <p style="margin-bottom: 0px;">Jets</p>
+                    </td>
+                    <td class="text-center" style="width: 33%;"><input id="Jets" type="checkbox"></td>
+                    <td class="text-center" style="width: 33%;">
+                        <p id="JetsLabel" style="margin-bottom: 0px;">Disabled</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-center" style="width: 33%;">
+                        <p style="margin-bottom: 0px;">Waterfall(s)</p>
+                    </td>
+                    <td class="text-center" style="width: 33%;"><input id="Waterfalls" type="checkbox"></td>
+                    <td class="text-center" style="width: 33%;">
+                        <p id="WaterfallsLabel" style="margin-bottom: 0px;">Disabled</p>
+                    </td>
+                </tr>
+                <tr style="width: 100%;">
+                    <td class="text-center" style="width: 33%;">
+                        <p style="margin-bottom: 0px;">Cleaning System</p>
+                    </td>
+                    <td class="text-center" style="width: 33%;"><input id="Cleaning" type="checkbox"></td>
+                    <td class="text-center" style="width: 33%;">
+                        <p id="CleaningLabel" style="margin-bottom: 0px;">Disabled</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.5.0/js/bootstrap4-toggle.min.js"></script>
+</body>
+
+</html>
