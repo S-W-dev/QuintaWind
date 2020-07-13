@@ -1,4 +1,4 @@
-const socket = io('localhost:3000');
+const socket = io('192.168.0.159:3000');
 
 //let poolTemp = document.getElementById("PoolTemp");
 //let spaTemp = document.getElementById("SpaTemp");
