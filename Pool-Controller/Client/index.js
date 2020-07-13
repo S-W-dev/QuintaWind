@@ -129,7 +129,11 @@ let connect = (client) => {
     }).on('controllerConfig', function (config) {
         obj.degC = config.degC;
         //client.close();
-        console.log(getCircuitByDeviceId(settings.waterfalls));
+        //console.log(config);
+        this.getEquipmentConfiguration();
+        //console.log(config.getCircuitByDeviceId(settings.waterfalls));
+    }).on('equipmentConfiguration', (config) => {
+        //console.log(config);
     }).on('loginFailed', function () {
         obj.isError = true;
         obj.error = 'unable to login (wrong password?)';
@@ -275,6 +279,33 @@ let color_codes = {
     purple: ScreenLogic.LIGHT_CMD_COLOR_PURPLE
 }
 
+let GetCircuitValues = () => {
+    
+}
+
+let sendCircuitValues = (data) => {
+        conn.query("SELECT * FROM circuit_history", (err, result) => {
+            data = result[0];
+                //console.log(data);
+                for (var i = 0; i < Object.keys(data).length; i++) {
+                    sendValue({
+                        circuit: Object.keys(data)[i],
+                        value: data[Object.keys(data)[i]] || 'off'
+                    });
+                }
+        });
+}
+
+let sendValue = (data) => {
+    io.emit('circuit', data);
+}
+
+function updateValues(data) {
+        conn.query(`update circuit_history set ${data.circuit}= '${data.value}'`, (err, result) => {
+            if (err) throw err;
+        });
+}
+
 function turnOnWaterFalls() {
     THIS.setCircuitState(0, settings.waterfalls, 1);
     console.log()
@@ -308,19 +339,18 @@ function turnOffLights() {
     THIS.sendLightCommand(0, color_codes.off);
 }
 
-//console.log(settings.port);
-
-function changed(circuit, value) {
-    socket.emit("circuit", {circuit: circuit, value: value});
-}
 
 io.on('connection', (socket) => {
-    console.log('New user connected');
+
+    sendCircuitValues(GetCircuitValues());
+
+    //console.log('New user connected');
 
     socket.on('circuit', (data) => {
         // data.circuit = waterfalls, jets, lights
         // data.value = on off red blue...
         //console.log("New circuit change: " + data);
+        updateValues(data);
         http.get("http://192.168.0.159:3000/circuit/"+data.circuit+"/"+data.value, (resp) => {
             var data = '';
             resp.on('data', (chunk) => {
@@ -329,7 +359,7 @@ io.on('connection', (socket) => {
 
             // The whole response has been received. Print out the result.
             resp.on('end', () => {
-                console.log(data);
+                //console.log(data);
                 socket.emit('response', data);
             });
         });

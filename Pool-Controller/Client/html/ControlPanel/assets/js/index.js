@@ -10,9 +10,9 @@ let cleaning = document.getElementById("Cleaning");
 let poolTempLabel = document.getElementById("PoolTempLabel");
 let spaTempLabel = document.getElementById("SpaTempLabel");
 
-let jetsLabel = document.getElementById("JetsLabel");
-let waterfallsLabel = document.getElementById("WaterfallsLabel");
-let cleaningLabel = document.getElementById("CleaningLabel");
+//let ////JetsLabel] = document.getElementById("////JetsLabel]]");
+//let //WaterfallsLabel = document.getElementById("//WaterfallsLabel");
+//let ////cleaningLabel = document.getElementById("////cleaningLabel");
 
 poolTemp.addEventListener('input', function (evt) {
     poolTempLabel.innerHTML = this.value;
@@ -24,30 +24,30 @@ spaTemp.addEventListener('input', function (evt) {
 
 jets.addEventListener('input', function (evt) {
     if (this.checked) {
-        jetsLabel.innerHTML = "Enabled";
+        //JetsLabel].innerHTML = "Enabled";
         Circuit("jets", "on");
     } else {
-        jetsLabel.innerHTML = "Disabled";
+        //JetsLabel].innerHTML = "Disabled";
         Circuit("jets", "off");
     }
 });
 
 waterfalls.addEventListener('input', function (evt) {
     if (this.checked) {
-        waterfallsLabel.innerHTML = "Enabled";
+        ////WaterfallsLabel.innerHTML = "Enabled";
         Circuit("waterfalls", "on");
     } else {
-        waterfallsLabel.innerHTML = "Disabled";
+        ////WaterfallsLabel.innerHTML = "Disabled";
         Circuit("waterfalls", "off");
     }
 });
 
 cleaning.addEventListener('input', function (evt) {
     if (this.checked) {
-        cleaningLabel.innerHTML = "Enabled";
+        //cleaningLabel.innerHTML = "Enabled";
         Circuit("cleaner", "on");
     } else {
-        cleaningLabel.innerHTML = "Disabled";
+        //cleaningLabel.innerHTML = "Disabled";
         Circuit("cleaner", "off");
     }
 });
@@ -61,27 +61,32 @@ socket.on('response', (data) => {
 });
 
 socket.on('circuit', (data) => {
+    var circuit = data.circuit, value = data.value;
     console.log(data.circuit);
     switch (circuit) {
         case "waterfalls":
             if (data.value == "on") {
-                waterfallsLabel.checked = true;
+                ////WaterfallsLabel.innerHTML = "Enabled";
+                waterfalls.checked = true;
             } else {
-                waterfallsLabel.checked = false;
+                waterfalls.checked = false;
             }
             break;
         case "jets":
+            console.log(data.value);
             if (data.value == "on") {
-                jetsLabel.checked = true;
+                jets.checked = true;
+                ////JetsLabel].innerHTML = "Enabled";
             } else {
-                jetsLabel.checked = false;
+                jets.checked = false;
             }
             break;
         case "cleaner":
             if (data.value == "on") {
-                cleaningLabel.checked = true;
+                cleaning.checked = true;
+                ////cleaningLabel.innerHTML = "Enabled";
             } else {
-                cleaningLabel.checked = false;
+                cleaning.checked = false;
             }
             break;
         default:

@@ -42,6 +42,10 @@ conn.query(`SHOW DATABASES LIKE 'pentair';`, function (err, result) {
                 if (err) throw err;
             });
 
+            conn.query(`CREATE TABLE circuit_history (waterfalls VARCHAR(255), jets VARCHAR(255), cleaner VARCHAR(255), lights VARCHAR(255))`, function (err, result) {
+                if (err) throw err;
+            });
+
             conn.query(`CREATE TABLE pool_data (timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, version VARCHAR(255), status VARCHAR(255), poolTemp VARCHAR(255), spaTemp VARCHAR(255), airTemp VARCHAR(255), saltPPM VARCHAR(255), pH VARCHAR(255), saturation VARCHAR(255), isSpaActive VARCHAR(255), isPoolActive VARCHAR(255), calcium VARCHAR(255), cyanuricAcid VARCHAR(255), alkalinity VARCHAR(255), saltCellInstalled VARCHAR(255), degC VARCHAR(255))`, function (err, result) {
                 if (err) throw err;
             });
@@ -62,6 +66,10 @@ setTimeout(()=>{
         conn = mysql.createConnection(settings.mysqlconnection1);
         conn.connect((err) => {
             conn.query(`INSERT INTO settings (pentair, password, \`interval\`, port, jets, waterfalls) VALUES ('${settings.pentair}', '${settings.password}', '${settings.interval}', '${settings.port}', '${settings.jets}', '${settings.waterfalls}')`, (err, result) => {
+                if (err) throw err;
+            });
+
+            conn.query(`INSERT INTO circuit_history (waterfalls, jets, cleaner, lights) VALUES ('off', 'off', 'off', 'off')`, (err, result) => {
                 if (err) throw err;
             });
 
