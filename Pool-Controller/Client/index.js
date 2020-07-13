@@ -13,7 +13,9 @@ const settings = require("./settings").settings;
 const url = require('url');
 const socket = require('socket.io');
 const http = require("http");
-const { SLSetHeatSetPointMessage } = require('node-screenlogic/messages');
+const {
+    SLSetHeatSetPointMessage
+} = require('node-screenlogic/messages');
 
 let conn = mysql.createConnection(settings.mysqlconnection);
 let server = http.createServer(app);
@@ -61,18 +63,20 @@ let Start = () => {
                 process.stdout.write("Connecting...\r");
                 obj = {};
                 console.time("Connected in");
-                var start = new Date(), connecting = true;
+                var start = new Date(),
+                    connecting = true;
                 connect(connection);
-                var end = new Date(), connecting = false;
+                var end = new Date(),
+                    connecting = false;
                 var time = end - start;
                 console.timeEnd("Connected in")
                 console.log("Starting...");
                 var i = 0;
-                setInterval(()=>{
-                   try {
-                       //console.log(i);
+                setInterval(() => {
+                    try {
+                        //console.log(i);
                         obj = {};
-                        setTimeout(()=>{
+                        setTimeout(() => {
 
                             THIS.StartLoop();
 
@@ -80,6 +84,14 @@ let Start = () => {
                         //console.log("test");
                         setTimeout(() => {
                             sendCircuitValues(GetCircuitValues());
+                            sendValue({
+                                circuit: "pooltemp",
+                                value: obj.poolTemp
+                            });
+                            sendValue({
+                                circuit: "spatemp",
+                                value: obj.poolTemp
+                            });
                             if (i == 105) {
                                 console.log('Uploading data');
                                 uploadData();
@@ -90,10 +102,10 @@ let Start = () => {
                             }
                         }, 5000);
 
-                   } catch {
-                       console.log("An error happened ): try rerunning");
-                   }
-                i++
+                    } catch {
+                        console.log("An error happened ): try rerunning");
+                    }
+                    i++
                 }, settings.interval);
             }
         }, 1000);
@@ -149,18 +161,12 @@ let connect = (client) => {
 
 
 let uploadData = () => {
-    if (!obj.isPoolActive) {
-        obj.poolTemp = obj.poolTemp + " (Last)";
-    }
-    if (!obj.isSpaActive) {
-        obj.spaTemp = obj.spaTemp + " (Last)";
-    }
     values = [];
     values.push(Object.values(obj));
 
 
     //waterfalls
-    
+
 
     //jets
 
@@ -175,43 +181,43 @@ let uploadData = () => {
 
 //express
 app.get("/data", (req, res) => {
-//if (req.get('host') == 'localhost:3000') {
+    //if (req.get('host') == 'localhost:3000') {
 
-        try {
-            var url = new URL(decodeURIComponent(req.protocol + '://' + req.get('host') + req.url)).searchParams.get('query');
-            //console.log(decodeURIComponent(req.protocol + '://' + req.get('host') + req.url));
-            conn.query(url, (err, rows) => {
+    try {
+        var url = new URL(decodeURIComponent(req.protocol + '://' + req.get('host') + req.url)).searchParams.get('query');
+        //console.log(decodeURIComponent(req.protocol + '://' + req.get('host') + req.url));
+        conn.query(url, (err, rows) => {
 
-                res.send("<textarea style='width:100%;height:100%;'>" + JSON.stringify(rows, null, "\t") + "\n\n\nTotal: " + rows.length + "</textarea>");
+            res.send("<textarea style='width:100%;height:100%;'>" + JSON.stringify(rows, null, "\t") + "\n\n\nTotal: " + rows.length + "</textarea>");
 
-            });
-        } catch (x) {
-            //console.error(x);
-            conn.query("select * from pool_data", (err, rows) => {
+        });
+    } catch (x) {
+        //console.error(x);
+        conn.query("select * from pool_data", (err, rows) => {
 
-                res.send("<textarea style='width:100%;height:100%;'>" + JSON.stringify(rows, null, "\t") + "</textarea>");
+            res.send("<textarea style='width:100%;height:100%;'>" + JSON.stringify(rows, null, "\t") + "</textarea>");
 
-            });
-        }
+        });
+    }
 
 
-// } else {
-//     res.send("<script>window.onload = () => {window.location.href = '/'}</script>");
-// }
+    // } else {
+    //     res.send("<script>window.onload = () => {window.location.href = '/'}</script>");
+    // }
 });
 
 app.get("/circuit/*", (req, res) => {
 
     var params = req.url.split("/");
-    
+
     if (params.length == 4) {
         var circuit = params[2];
         var value = params[3];
 
-        switch(circuit) {
+        switch (circuit) {
 
             case "waterfalls":
-                switch(value) {
+                switch (value) {
                     case "on":
                         turnOnWaterFalls();
                         res.send("Success!");
@@ -226,20 +232,20 @@ app.get("/circuit/*", (req, res) => {
                 }
                 break;
             case "jets":
-            switch (value) {
-                case "on":
-                    turnOnJets();
-                    res.send("Success!");
-                    break;
-                case "off":
-                    turnOffJets();
-                    res.send("Success!");
-                    break;
-                default:
-                    res.send("Invalid value");
-                    break;
-            }
-            break;
+                switch (value) {
+                    case "on":
+                        turnOnJets();
+                        res.send("Success!");
+                        break;
+                    case "off":
+                        turnOffJets();
+                        res.send("Success!");
+                        break;
+                    default:
+                        res.send("Invalid value");
+                        break;
+                }
+                break;
             case "pool":
                 switch (value) {
                     case "on":
@@ -277,11 +283,11 @@ app.get("/circuit/*", (req, res) => {
                 }
                 break;
             case "lights":
-            if (Object.keys(color_codes).includes(value)) {
-                changePoolColor(value);
-                res.send("Success!");
-            } else res.send("Invalid color code");
-            break;
+                if (Object.keys(color_codes).includes(value)) {
+                    changePoolColor(value);
+                    res.send("Success!");
+                } else res.send("Invalid color code");
+                break;
 
             default:
                 res.send("Invalid request.");
@@ -313,8 +319,10 @@ app.get("/reset", (req, res) => {
         user: "root",
         password: ""
     }).query("drop database pentair;", (err, result) => {
-        if (err) {res.send(err); throw err;}
-        else res.send(result);
+        if (err) {
+            res.send(err);
+            throw err;
+        } else res.send(result);
     });
     console.log("\n\n\n\n\n\n\nPlease Run 'node setup.js' before next launch.\n\n\n\n\n\n\n")
     process.exit(1);
@@ -344,20 +352,20 @@ let color_codes = {
 }
 
 let GetCircuitValues = () => {
-    
+
 }
 
 let sendCircuitValues = (data) => {
-        conn.query("SELECT * FROM circuit_history", (err, result) => {
-            data = result[0];
-                //console.log(data);
-                for (var i = 0; i < Object.keys(data).length; i++) {
-                    sendValue({
-                        circuit: Object.keys(data)[i],
-                        value: data[Object.keys(data)[i]] || 'off'
-                    });
-                }
-        });
+    conn.query("SELECT * FROM circuit_history", (err, result) => {
+        data = result[0];
+        //console.log(data);
+        for (var i = 0; i < Object.keys(data).length; i++) {
+            sendValue({
+                circuit: Object.keys(data)[i],
+                value: data[Object.keys(data)[i]] || 'off'
+            });
+        }
+    });
 }
 
 let sendValue = (data) => {
@@ -365,18 +373,18 @@ let sendValue = (data) => {
 }
 
 function updateValues(data) {
-        conn.query(`update circuit_history set ${data.circuit}= '${data.value}'`, (err, result) => {
-            if (err) throw err;
-        });
+    conn.query(`update circuit_history set ${data.circuit}= '${data.value}'`, (err, result) => {
+        if (err) throw err;
+    });
 }
 
 function setPoolSetPoint(setpoint) {
     console.log(setpoint);
-    THIS.setSetPoint(settings.pool, 0, setpoint);
+    //THIS.setSetPoint(settings.pool, 0, setpoint);
 }
 
 function setSpaSetPoint(setpoint) {
-    THIS.setSetPoint(settings.spa, 1, setpoint);
+    //THIS.setSetPoint(settings.spa, 1, setpoint);
 }
 
 function turnOnWaterFalls() {
@@ -424,7 +432,7 @@ io.on('connection', (socket) => {
         // data.value = on off red blue...
         //console.log("New circuit change: " + data);
         updateValues(data);
-        http.get("http://192.168.0.159:3000/circuit/"+data.circuit+"/"+data.value, (resp) => {
+        http.get("http://localhost:3000/circuit/" + data.circuit + "/" + data.value, (resp) => {
             var data = '';
             resp.on('data', (chunk) => {
                 data += chunk;
