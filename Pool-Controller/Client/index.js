@@ -129,6 +129,7 @@ let connect = (client) => {
     }).on('controllerConfig', function (config) {
         obj.degC = config.degC;
         //client.close();
+        console.log(getCircuitByDeviceId(settings.waterfalls));
     }).on('loginFailed', function () {
         obj.isError = true;
         obj.error = 'unable to login (wrong password?)';
@@ -149,6 +150,15 @@ let uploadData = () => {
     }
     values = [];
     values.push(Object.values(obj));
+
+
+    //waterfalls
+    
+
+    //jets
+
+    //lights
+
     //console.log(values);
     conn.query(`INSERT INTO pool_data (version, status, poolTemp, spaTemp, airTemp, saltPPM, pH, saturation, isSpaActive, isPoolActive, calcium, cyanuricAcid, alkalinity, saltCellInstalled, degC) VALUES (?)`, values, (err, result) => {
         if (err) throw err;
@@ -267,6 +277,7 @@ let color_codes = {
 
 function turnOnWaterFalls() {
     THIS.setCircuitState(0, settings.waterfalls, 1);
+    console.log()
     console.log('enabling waterfalls');
 }
 
@@ -298,5 +309,33 @@ function turnOffLights() {
 }
 
 //console.log(settings.port);
+
+function changed(circuit, value) {
+    socket.emit("circuit", {circuit: circuit, value: value});
+}
+
+io.on('connection', (socket) => {
+    console.log('New user connected');
+
+    socket.on('circuit', (data) => {
+        // data.circuit = waterfalls, jets, lights
+        // data.value = on off red blue...
+        //console.log("New circuit change: " + data);
+        http.get("http://192.168.0.159:3000/circuit/"+data.circuit+"/"+data.value, (resp) => {
+            var data = '';
+            resp.on('data', (chunk) => {
+                data += chunk;
+            });
+
+            // The whole response has been received. Print out the result.
+            resp.on('end', () => {
+                console.log(data);
+                socket.emit('response', data);
+            });
+        });
+    });
+
+});
+
 server.listen(3000);
 Start();
