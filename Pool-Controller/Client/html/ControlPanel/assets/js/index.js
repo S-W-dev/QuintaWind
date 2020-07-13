@@ -53,5 +53,6 @@ socket.on('connect', () => {
 });
 
 Circuit = (circuitName, value) => {
+    console.log("Changed " + circuitName);
     socket.emit('circuit', { "circuit": circuitName, "value": value });
 }
