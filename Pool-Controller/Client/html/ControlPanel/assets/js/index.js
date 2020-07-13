@@ -33,8 +33,10 @@ jets.addEventListener('input', function (evt) {
 waterfalls.addEventListener('input', function (evt) {
     if (this.checked) {
         waterfallsLabel.innerHTML = "Enabled";
+        Circuit("waterfalls", "on");
     } else {
         waterfallsLabel.innerHTML = "Disabled";
+        Circuit("waterfalls", "off");
     }
 });
 
@@ -49,3 +51,7 @@ cleaning.addEventListener('input', function (evt) {
 socket.on('connect', () => {
     console.log(socket.id);
 });
+
+Circuit = (circuitName, value) => {
+    socket.emit('circuit', { "circuit": circuitName, "value": value });
+}
