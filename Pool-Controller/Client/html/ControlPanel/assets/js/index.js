@@ -25,8 +25,10 @@ spaTemp.addEventListener('input', function (evt) {
 jets.addEventListener('input', function (evt) {
     if (this.checked) {
         jetsLabel.innerHTML = "Enabled";
+        Circuit("jets", "on");
     } else {
         jetsLabel.innerHTML = "Disabled";
+        Circuit("jets", "off");
     }
 });
 
@@ -43,13 +45,19 @@ waterfalls.addEventListener('input', function (evt) {
 cleaning.addEventListener('input', function (evt) {
     if (this.checked) {
         cleaningLabel.innerHTML = "Enabled";
+        Circuit("cleaning", "on");
     } else {
         cleaningLabel.innerHTML = "Disabled";
+        Circuit("cleaning", "off");
     }
 });
 
 socket.on('connect', () => {
     console.log(socket.id);
+});
+
+socket.on('response', (data) => {
+    console.log(data);
 });
 
 Circuit = (circuitName, value) => {
