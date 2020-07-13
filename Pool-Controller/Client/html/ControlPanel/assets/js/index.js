@@ -1,4 +1,4 @@
-const socket = io('192.168.0.159:3000');
+const socket = io('localhost:3000');
 
 //let poolTemp = document.getElementById("PoolTemp");
 //let spaTemp = document.getElementById("SpaTemp");
@@ -7,8 +7,8 @@ let jets = document.getElementById("Jets");
 let waterfalls = document.getElementById("Waterfalls");
 let cleaning = document.getElementById("Cleaning");
 
-let poolTempLabel = document.getElementById("PoolTempLabel");
-let spaTempLabel = document.getElementById("SpaTempLabel");
+let poolTempLabel = document.getElementById("PoolLabel");
+let spaTempLabel = document.getElementById("SpaLabel");
 
 //let ////JetsLabel] = document.getElementById("////JetsLabel]]");
 //let //WaterfallsLabel = document.getElementById("//WaterfallsLabel");
@@ -127,6 +127,12 @@ socket.on('circuit', (data) => {
             } else {
                 cleaning.checked = false;
             }
+            break;
+        case "pooltemp":
+            poolTempLabel.innerHTML = data.value + "&deg";
+            break;
+        case "spatemp":
+            spaTempLabel.innerHTML = data.value + "&deg";
             break;
         default:
             console.log("Invalid Circuit")
