@@ -59,22 +59,32 @@ let Start = () => {
                 var time = end - start;
                 console.timeEnd("Connected in")
                 console.log("Starting...");
+                var i = 0;
                 setInterval(()=>{
                    try {
+                       console.log(i);
                         obj = {};
                         setTimeout(()=>{
 
                             THIS.StartLoop();
 
                         }, 1000);
-
+                        //console.log("test");
                         setTimeout(() => {
-                            uploadData();
+                            if (i == 105) {
+                                console.log('Uploading data');
+                                uploadData();
+                                i = 0;
+                            } else {
+                                console.log('refreshing connection');
+                                connection.getControllerConfig();
+                            }
                         }, 5000);
 
                    } catch {
                        console.log("An error happened ): try rerunning");
                    }
+                i++
                 }, settings.interval);
             }
         }, 1000);
