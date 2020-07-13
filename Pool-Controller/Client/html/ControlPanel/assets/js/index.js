@@ -62,6 +62,32 @@ socket.on('response', (data) => {
 
 socket.on('circuit', (data) => {
     console.log(data.circuit);
+    switch (circuit) {
+        case "waterfalls":
+            if (data.value == "on") {
+                waterfallsLabel.checked = true;
+            } else {
+                waterfallsLabel.checked = false;
+            }
+            break;
+        case "jets":
+            if (data.value == "on") {
+                jetsLabel.checked = true;
+            } else {
+                jetsLabel.checked = false;
+            }
+            break;
+        case "cleaning":
+            if (data.value == "on") {
+                cleaningLabel.checked = true;
+            } else {
+                cleaningLabel.checked = false;
+            }
+            break;
+        default:
+            console.log("Invalid Circuit")
+            break;
+    }
 });
 
 Circuit = (circuitName, value) => {
