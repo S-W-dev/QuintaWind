@@ -14,6 +14,20 @@ let spaTempLabel = document.getElementById("SpaTempLabel");
 //let //WaterfallsLabel = document.getElementById("//WaterfallsLabel");
 //let ////cleaningLabel = document.getElementById("////cleaningLabel");
 
+$(".arc-slider").roundSlider({
+    sliderType: "min-range",
+    circleShape: "pie",
+    value: 75,
+    startAngle: 315,
+    editableTooltip: true,
+    radius: ($(".arc-slider").width()-10)/2,
+    width: 6,
+    handleSize: "+32",
+    tooltipFormat: function (args) {
+        return args.value + "&deg";
+    }
+});
+
 poolTemp.addEventListener('input', function (evt) {
     poolTempLabel.innerHTML = this.value;
 });

@@ -45,3 +45,61 @@ header h1 {
   background-color: #f9f9fb;
 }
 
+/* ARC SLIDER */
+.arc-slider {
+    height: 10% !important;
+    width: 50% !important;
+    min-width: 200px;
+    max-width: 400px;
+    border: 1px none;
+    overflow: hidden;
+    padding: 15px;
+    margin: 0 auto;
+}
+
+.arc-slider-col {
+    height: 10% !important;
+    width: 50% !important;
+    border: 1px none;
+    overflow: hidden;
+    padding: 15px;
+}
+
+.arc-slider .rs-container {
+    margin-left: 5px;
+    top: 10px;
+}
+
+.arc-slider .rs-tooltip {
+    top: 85%;
+    left: 50%;
+}
+
+.arc-slider .rs-tooltip-text {
+    font-size: 20px;
+}
+
+.arc-slider .rs-border {
+    border-width: 0px;
+}
+
+.rs-seperator {
+    display: none !important;
+}
+
+/* Appearance related changes */
+.rs-control .rs-range-color {
+    background-color: #2222ee;
+}
+
+.rs-control .rs-path-color {
+    background-color: #dd0000;
+}
+
+.rs-control .rs-handle {
+    background-color: #2222ee;
+    cursor: pointer;
+    /*width: 10px !important;
+    height: 10px !important;
+    transform: translate(140%, 140%) !important;*/
+}
