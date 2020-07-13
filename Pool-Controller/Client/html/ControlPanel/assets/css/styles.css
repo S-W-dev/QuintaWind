@@ -57,6 +57,16 @@ header h1 {
     margin: 0 auto;
 }
 
+.TempLabel {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 55;
+    font-size: xx-large;
+}
+
 .arc-slider-col {
     height: 10% !important;
     width: 50% !important;

@@ -424,7 +424,7 @@ io.on('connection', (socket) => {
         // data.value = on off red blue...
         //console.log("New circuit change: " + data);
         updateValues(data);
-        http.get("http://192.168.0.159:3000/circuit/"+data.circuit+"/"+data.value, (resp) => {
+        http.get("http://localhost:3000/circuit/"+data.circuit+"/"+data.value, (resp) => {
             var data = '';
             resp.on('data', (chunk) => {
                 data += chunk;
