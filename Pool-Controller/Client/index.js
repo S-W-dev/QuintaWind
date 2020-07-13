@@ -60,13 +60,21 @@ let Start = () => {
                 console.timeEnd("Connected in")
                 console.log("Starting...");
                 setInterval(()=>{
-                    obj = {};
-                    THIS.StartLoop();
-                    
-                    setTimeout(() => {
-                            uploadData();
-                    }, 5000);
+                   try {
+                        obj = {};
+                        setTimeout(()=>{
 
+                            THIS.StartLoop();
+
+                        }, 1000);
+
+                        setTimeout(() => {
+                            uploadData();
+                        }, 5000);
+
+                   } catch {
+                       console.log("An error happened ): try rerunning");
+                   }
                 }, settings.interval);
             }
         }, 1000);
