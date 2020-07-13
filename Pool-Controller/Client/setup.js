@@ -4,7 +4,7 @@ let settings = {
 
     pentair: 'Pentair: ' + '0F-50-40',
     password: '',
-    interval: 1000 * 10 * 1, /* 1000 * 60 * 1  ==  one minute*/
+    interval: 1000 * 10 * 120, /* 1000 * 60 * 1  ==  one minute*/
 
     mysqlconnection: {
         host: "127.0.0.1",
