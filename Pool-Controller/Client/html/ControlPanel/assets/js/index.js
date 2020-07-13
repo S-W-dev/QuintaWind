@@ -1,3 +1,5 @@
+const socket = io('http://localhost:3000');
+
 let poolTemp = document.getElementById("PoolTemp");
 let spaTemp = document.getElementById("SpaTemp");
 
@@ -42,4 +44,8 @@ cleaning.addEventListener('input', function (evt) {
     } else {
         cleaningLabel.innerHTML = "Disabled";
     }
+});
+
+socket.on('connect', () => {
+    console.log(socket.id);
 });
