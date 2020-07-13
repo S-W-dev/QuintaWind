@@ -62,7 +62,7 @@ let Start = () => {
                 var i = 0;
                 setInterval(()=>{
                    try {
-                       console.log(i);
+                       //console.log(i);
                         obj = {};
                         setTimeout(()=>{
 
@@ -76,7 +76,7 @@ let Start = () => {
                                 uploadData();
                                 i = 0;
                             } else {
-                                console.log('refreshing connection');
+                                //console.log('refreshing connection');
                                 connection.getControllerConfig();
                             }
                         }, 5000);
