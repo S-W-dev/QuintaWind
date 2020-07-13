@@ -2,6 +2,8 @@ const mysql = require('mysql');
 
 let settings = {
 
+    
+
     mysqlconnection: {
         host: "127.0.0.1",
         user: "root",
@@ -15,10 +17,16 @@ let conn = mysql.createConnection(settings.mysqlconnection);
 
 
 
-conn.query("SELECT pentair, password FROM login", (err, rows) => {
+conn.query("SELECT * FROM settings", (err, rows) => {
 
-    settings.pentair = rows[0].pentair;
-    settings.password = rows[0].password;
+    var row = rows[0];
+
+    settings.pentair = row.pentair;
+    settings.password = row.password;
+    settings.interval = parseInt(row.interval);
+
+    settings.jets = parseInt(row.jets);
+    settings.waterfalls = parseInt(row.waterfalls);
 
 });
 

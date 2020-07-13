@@ -4,6 +4,7 @@ let settings = {
 
     pentair: 'Pentair: ' + '0F-50-40',
     password: '',
+    interval: 1000 * 10 * 1, /* 1000 * 60 * 1  ==  one minute*/
 
     mysqlconnection: {
         host: "127.0.0.1",
@@ -16,8 +17,12 @@ let settings = {
         user: "root",
         password: "",
         database: "pentair"
-    }
+    },
 
+    //circuits
+    jets: 501,
+    waterfalls: 502
+    
 }
 
 let conn = mysql.createConnection(settings.mysqlconnection);
@@ -32,7 +37,7 @@ conn.query(`SHOW DATABASES LIKE 'pentair';`, function (err, result) {
             if (err) throw err;
             //conn = mysql.createConnection(settings.mysqlconnection);
             conn.query("USE pentair", (err, result) => {});
-            conn.query(`CREATE TABLE login (pentair VARCHAR(255), password VARCHAR(255))`, function (err, result) {
+            conn.query(`CREATE TABLE settings (pentair VARCHAR(255), password VARCHAR(255), \`interval\` VARCHAR(255), jets VARCHAR(255), waterfalls VARCHAR(255))`, function (err, result) {
                 if (err) throw err;
             });
 
@@ -55,11 +60,11 @@ setTimeout(()=>{
         conn.end();
         conn = mysql.createConnection(settings.mysqlconnection1);
         conn.connect((err) => {
-            conn.query(`INSERT INTO login (pentair, password) VALUES ('${settings.pentair}', '${settings.password}')`, (err, result) => {
+            conn.query(`INSERT INTO settings (pentair, password, \`interval\`, jets, waterfalls) VALUES ('${settings.pentair}', '${settings.password}', '${settings.interval}', '${settings.jets}', '${settings.waterfalls}')`, (err, result) => {
                 if (err) throw err;
             });
 
-            console.log("Added username and password to database");
+            //console.log("Added username and password to database");
 
             conn.end();
         });
