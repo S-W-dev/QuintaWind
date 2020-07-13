@@ -78,6 +78,7 @@ let Start = () => {
                         }, 1000);
                         //console.log("test");
                         setTimeout(() => {
+                            sendCircuitValues(GetCircuitValues());
                             if (i == 105) {
                                 console.log('Uploading data');
                                 uploadData();
