@@ -60,6 +60,10 @@ socket.on('response', (data) => {
     console.log(data);
 });
 
+socket.on('circuit', (data) => {
+    console.log(data.circuit);
+});
+
 Circuit = (circuitName, value) => {
     console.log("Changed " + circuitName);
     socket.emit('circuit', { "circuit": circuitName, "value": value });
