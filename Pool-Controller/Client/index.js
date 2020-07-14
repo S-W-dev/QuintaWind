@@ -81,18 +81,29 @@ let Start = () => {
                             THIS.StartLoop();
 
                         }, 1000);
+                        
                         //console.log("test");
                         setTimeout(() => {
+                            // if (!obj.isSpaActive == "1") {
+                            //     obj.spaTemp = obj.spaTemp + " (Last)";
+                            // }
+                            // if (!obj.isPoolActive == "1") {
+                            //     obj.isPoolActive = obj.isPoolActive + " (Last)";
+                            // }
                             sendCircuitValues(GetCircuitValues());
+                            sendValue({
+                                circuit: "airtemp",
+                                value: obj.airTemp
+                            });
                             sendValue({
                                 circuit: "pooltemp",
                                 value: obj.poolTemp
                             });
                             sendValue({
                                 circuit: "spatemp",
-                                value: obj.poolTemp
+                                value: obj.spaTemp
                             });
-                            if (i == 105) {
+                            if (i == 2) {
                                 console.log('Uploading data');
                                 uploadData();
                                 i = 0;
@@ -149,6 +160,12 @@ let connect = (client) => {
         //console.log(config.getCircuitByDeviceId(settings.waterfalls));
     }).on('equipmentConfiguration', (config) => {
         //console.log(config);
+        if (!obj.isSpaActive == "1") {
+            obj.spaTemp = obj.spaTemp + " (Last)";
+        }
+        if (!obj.isPoolActive == "1") {
+            obj.isPoolActive = obj.isPoolActive + " (Last)";
+        }
     }).on('loginFailed', function () {
         obj.isError = true;
         obj.error = 'unable to login (wrong password?)';
@@ -380,11 +397,11 @@ function updateValues(data) {
 
 function setPoolSetPoint(setpoint) {
     console.log(setpoint);
-    //THIS.setSetPoint(settings.pool, 0, setpoint);
+    THIS.setSetPoint(0, 0, setpoint);
 }
 
 function setSpaSetPoint(setpoint) {
-    //THIS.setSetPoint(settings.spa, 1, setpoint);
+    THIS.setSetPoint(0, 1, setpoint);
 }
 
 function turnOnWaterFalls() {
@@ -424,6 +441,21 @@ function turnOffLights() {
 io.on('connection', (socket) => {
 
     sendCircuitValues(GetCircuitValues());
+
+    setTimeout(() => {
+        sendValue({
+            circuit: "airtemp",
+            value: obj.airTemp
+        });
+        sendValue({
+            circuit: "pooltemp",
+            value: obj.poolTemp
+        });
+        sendValue({
+            circuit: "spatemp",
+            value: obj.spaTemp
+        });
+    }, 1000);
 
     //console.log('New user connected');
 
