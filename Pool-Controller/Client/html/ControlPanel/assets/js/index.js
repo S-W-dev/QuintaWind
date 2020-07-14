@@ -17,7 +17,7 @@ let spaTempLabel = document.getElementById("SpaLabel");
 $("#pool").roundSlider({
     sliderType: "min-range",
     circleShape: "pie",
-    value: 75,
+    value: 85,
     startAngle: 315,
     editableTooltip: true,
     radius: ($(".arc-slider").width() - 10) / 2,
@@ -36,7 +36,7 @@ $("#pool").roundSlider({
 $("#spa").roundSlider({
     sliderType: "min-range",
     circleShape: "pie",
-    value: 75,
+    value: 85,
     startAngle: 315,
     editableTooltip: true,
     radius: ($(".arc-slider").width() - 10) / 2,
