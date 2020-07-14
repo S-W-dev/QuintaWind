@@ -142,6 +142,16 @@ socket.on('circuit', (data) => {
                 spaTempLabel.innerHTML = data.value + "&deg";
             }
             break;
+        case "pool_setpoint":
+            $("#pool").roundSlider({
+                value: data.value;
+            });
+            break;
+        case "spa_setpoint":
+            $("#pool").roundSlider({
+                value: data.value;
+            });
+            break;
         default:
             console.log("Invalid Circuit")
             break;
