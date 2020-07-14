@@ -149,7 +149,7 @@ socket.on('circuit', (data) => {
             break;
         case "spa_setpoint":
             $("#pool").roundSlider({
-                value: data.value;
+                value: data.value
             });
             break;
         default:
