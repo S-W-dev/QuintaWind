@@ -129,10 +129,18 @@ socket.on('circuit', (data) => {
             }
             break;
         case "pooltemp":
-            poolTempLabel.innerHTML = data.value + "&deg";
+            if (data.value.toString().split(" ").length > 1) {
+                poolTempLabel.innerHTML = data.value.split(" ")[0] + "&deg (Last)";
+            } else {
+                poolTempLabel.innerHTML = data.value + "&deg";
+            }
             break;
         case "spatemp":
-            spaTempLabel.innerHTML = data.value + "&deg";
+            if (data.value.toString().split(" ").length > 1) {
+                spaTempLabel.innerHTML = data.value.split(" ")[0] + "&deg (Last)";
+            } else {
+                spaTempLabel.innerHTML = data.value + "&deg";
+            }
             break;
         default:
             console.log("Invalid Circuit")
