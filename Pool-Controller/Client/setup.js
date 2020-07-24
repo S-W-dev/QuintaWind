@@ -53,7 +53,7 @@ conn.query(`SHOW DATABASES LIKE 'pentair';`, function (err, result) {
                 if (err) throw err;
             });
 
-            conn.query(`CREATE TABLE circuit_history (waterfalls VARCHAR(255), jets VARCHAR(255), cleaner VARCHAR(255), lights VARCHAR(255), pool VARCHAR(255), spa VARCHAR(255))`, function (err, result) {
+            conn.query(`CREATE TABLE circuit_history (waterfalls VARCHAR(255), jets VARCHAR(255), cleaner VARCHAR(255), lights VARCHAR(255), pool_setpoint VARCHAR(255), spa_setpoint VARCHAR(255))`, function (err, result) {
                 if (err) throw err;
             });
 
@@ -80,13 +80,14 @@ setTimeout(()=>{
                 if (err) throw err;
             });
 
-            conn.query(`INSERT INTO circuit_history (waterfalls, jets, cleaner, lights, spa, pool) VALUES ('${settings.default.waterfalls}', '${settings.default.jets}', '${settings.default.cleaner}', '${settings.default.lights}', '${settings.default.spa}', '${settings.default.pool}')`, (err, result) => {
+            conn.query(`INSERT INTO circuit_history (waterfalls, jets, cleaner, lights, spa_setpoint, pool_setpoint) VALUES ('${settings.default.waterfalls}', '${settings.default.jets}', '${settings.default.cleaner}', '${settings.default.lights}', '${settings.default.spa}', '${settings.default.pool}')`, (err, result) => {
                 if (err) throw err;
             });
             conn.end();
         });
     } else {
-        console.log("Data already exists.");
+        console.log("Data already exists. Resetting db");
+        conn.query("drop database pentair;")
         conn.end();
     }
 

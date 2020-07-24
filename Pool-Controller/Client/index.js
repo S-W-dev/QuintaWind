@@ -6,234 +6,46 @@
 
 
 const mysql = require('mysql');
-const ScreenLogic = require("node-screenlogic");
 const express = require('express');
 const app = express();
 const settings = require("./settings").settings;
-const url = require('url');
 const socket = require('socket.io');
 const http = require("http");
+const ScreenLogic = require("node-screenlogic");
 const {
     SLSetHeatSetPointMessage
 } = require('node-screenlogic/messages');
+const {
+    exec
+} = require("child_process");
 
 let conn = mysql.createConnection(settings.mysqlconnection);
 let server = http.createServer(app);
 let io = socket(server);
 
-let port = settings.port;
 
-let unit;
-let obj;
-let THIS;
-
-let StartPentair = (pentair, password) => {
-    let remote = new ScreenLogic.RemoteLogin(pentair);
-    remote.on('gatewayFound', function (_unit) {
-        remote.close();
-        if (_unit && _unit.gatewayFound) {
-            unit = _unit;
-            //console.log(unit);
-            console.log('unit ' + remote.systemName + ' found at ' + _unit.ipAddr + ':' + _unit.port);
-        } else {
-            console.log('no unit found by that name');
-        }
-    });
-
-    remote.connect();
-}
-
-let Start = () => {
-    // connect the mysql server
-    conn.connect(function (err) {
-        if (err) throw err;
-
-        // loop
-        let password;
-        conn.query(`SELECT pentair, password FROM settings`, (err, result) => {
-            if (err) throw err;
-            //console.log("Pentair device: " + result[0].pentair);
-            //console.log("Pentair password: " + result[0].password);
-            StartPentair(result[0].pentair);
-            password = result[0].password;
-        });
-        setTimeout(() => {
-            if (unit != undefined) {
-                let connection = new ScreenLogic.UnitConnection(unit.port, unit.ipAddr, password);
-                process.stdout.write("Connecting...\r");
-                obj = {};
-                console.time("Connected in");
-                var start = new Date(),
-                    connecting = true;
-                connect(connection);
-                var end = new Date(),
-                    connecting = false;
-                var time = end - start;
-                console.timeEnd("Connected in")
-                console.log("Starting...");
-                var i = 0;
-                setInterval(() => {
-                    try {
-                        //console.log(i);
-                        obj = {};
-                        setTimeout(() => {
-
-                            THIS.StartLoop();
-
-                        }, 1000);
-                        
-                        //console.log("test");
-                        setTimeout(() => {
-                            // if (!obj.isSpaActive == "1") {
-                            //     obj.spaTemp = obj.spaTemp + " (Last)";
-                            // }
-                            // if (!obj.isPoolActive == "1") {
-                            //     obj.isPoolActive = obj.isPoolActive + " (Last)";
-                            // }
-                            sendCircuitValues(GetCircuitValues());
-                            sendValue({
-                                circuit: "airtemp",
-                                value: obj.airTemp
-                            });
-                            sendValue({
-                                circuit: "pooltemp",
-                                value: obj.poolTemp
-                            });
-                            sendValue({
-                                circuit: "spatemp",
-                                value: obj.spaTemp
-                            });
-                            if (i == 2) {
-                                console.log('Uploading data');
-                                uploadData();
-                                i = 0;
-                            } else {
-                                //console.log('refreshing connection');
-                                connection.getControllerConfig();
-                            }
-                        }, 5000);
-
-                    } catch {
-                        console.log("An error happened ): try rerunning");
-                    }
-                    i++
-                }, settings.interval);
-            }
-        }, 1000);
-    });
-}
-
-let connect = (client) => {
-    client.on('loggedIn', function () {
-        this.getVersion();
-        THIS = this;
-        THIS.StartLoop = THIS.getVersion;
-    }).on('version', function (version) {
-        this.getPoolStatus();
-        obj.version = version.version;
-        //console.log(version.version);
-    }).on('poolStatus', function (status) {
-        this.getChemicalData();
-        obj.status = status.ok;
-        obj.poolTemp = status.currentTemp[0];
-        obj.spaTemp = status.currentTemp[1];
-        obj.airTemp = status.airTemp;
-        obj.saltPPM = status.saltPPM;
-        obj.pH = status.pH;
-        obj.saturation = status.saturation;
-        obj.isSpaActive = status.isSpaActive();
-        obj.isPoolActive = status.isPoolActive();
-    }).on('chemicalData', function (chemData) {
-        this.getSaltCellConfig();
-        obj.calcium = chemData.calcium;
-        obj.cyanuricAcid = chemData.cyanuricAcid;
-        obj.alkalinity = chemData.alkalinity;
-    }).on('saltCellConfig', function (saltCellConfig) {
-        this.getControllerConfig();
-        obj.saltCellInstalled = saltCellConfig.installed;
-    }).on('controllerConfig', function (config) {
-        obj.degC = config.degC;
-        //client.close();
-        //console.log(config);
-        //console.log(config.bodyArray);
-        this.getEquipmentConfiguration();
-        //console.log(config.getCircuitByDeviceId(settings.waterfalls));
-    }).on('equipmentConfiguration', (config) => {
-        //console.log(config);
-        if (!obj.isSpaActive == "1") {
-            obj.spaTemp = obj.spaTemp + " (Last)";
-        }
-        if (!obj.isPoolActive == "1") {
-            obj.isPoolActive = obj.isPoolActive + " (Last)";
-        }
-    }).on('loginFailed', function () {
-        obj.isError = true;
-        obj.error = 'unable to login (wrong password?)';
-        client.close();
-    });
-
-    client.connect();
-
-}
-
-
-let uploadData = () => {
-    values = [];
-    values.push(Object.values(obj));
-
-
-    //waterfalls
-
-
-    //jets
-
-    //lights
-
-    //console.log(values);
-    conn.query(`INSERT INTO pool_data (version, status, poolTemp, spaTemp, airTemp, saltPPM, pH, saturation, isSpaActive, isPoolActive, calcium, cyanuricAcid, alkalinity, saltCellInstalled, degC) VALUES (?)`, values, (err, result) => {
-        if (err) throw err;
-        //console.log("Rows affected: " + result.affectedRows);
-    });
-}
-
-//express
 app.get("/data", (req, res) => {
-    //if (req.get('host') == 'localhost:3000') {
-
     try {
         var url = new URL(decodeURIComponent(req.protocol + '://' + req.get('host') + req.url)).searchParams.get('query');
-        //console.log(decodeURIComponent(req.protocol + '://' + req.get('host') + req.url));
         conn.query(url, (err, rows) => {
-
             res.send("<textarea style='width:100%;height:100%;'>" + JSON.stringify(rows, null, "\t") + "\n\n\nTotal: " + rows.length + "</textarea>");
-
         });
     } catch (x) {
-        //console.error(x);
         conn.query("select * from pool_data", (err, rows) => {
-
             res.send("<textarea style='width:100%;height:100%;'>" + JSON.stringify(rows, null, "\t") + "</textarea>");
-
         });
     }
-
-
-    // } else {
-    //     res.send("<script>window.onload = () => {window.location.href = '/'}</script>");
-    // }
 });
-
 app.get("/circuit/*", (req, res) => {
-
     var params = req.url.split("/");
-
     if (params.length == 4) {
         var circuit = params[2];
         var value = params[3];
-
         switch (circuit) {
-
             case "waterfalls":
+                conn.query(`UPDATE circuit_history set waterfalls='${value}'`, (err, result) => {
+                    if (err) throw err;
+                });
                 switch (value) {
                     case "on":
                         turnOnWaterFalls();
@@ -249,6 +61,9 @@ app.get("/circuit/*", (req, res) => {
                 }
                 break;
             case "jets":
+                conn.query(`UPDATE circuit_history set jets='${value}'`, (err, result) => {
+                    if (err) throw err;
+                });
                 switch (value) {
                     case "on":
                         turnOnJets();
@@ -272,7 +87,7 @@ app.get("/circuit/*", (req, res) => {
                         //turn off heater TODO
                         break;
                     default:
-                        console.log("Pool: " + value);
+                        //console.log("Pool: " + value);
                         try {
                             value = parseInt(value);
                             setPoolSetPoint(value);
@@ -305,31 +120,20 @@ app.get("/circuit/*", (req, res) => {
                     res.send("Success!");
                 } else res.send("Invalid color code");
                 break;
-
             default:
                 res.send("Invalid request.");
                 break;
-
         }
-
     } else {
         res.send("Invalid request.");
     }
-
 });
-
 app.get("/cp", (req, res) => {
-
     res.send("<script>window.location.href='/controlpanel';</script>");
-
 });
-
 app.get("/", (req, res) => {
-
     res.send("<script>window.location.href='/controlpanel';</script>");
-
 });
-
 app.get("/reset", (req, res) => {
     mysql.createConnection({
         host: "127.0.0.1",
@@ -344,9 +148,7 @@ app.get("/reset", (req, res) => {
     console.log("\n\n\n\n\n\n\nPlease Run 'node setup.js' before next launch.\n\n\n\n\n\n\n")
     process.exit(1);
 })
-
 app.use(express.static(__dirname + "/html"));
-
 let color_codes = {
     on: ScreenLogic.LIGHT_CMD_LIGHTS_ON,
     off: ScreenLogic.LIGHT_CMD_LIGHTS_OFF,
@@ -367,31 +169,20 @@ let color_codes = {
     white: ScreenLogic.LIGHT_CMD_COLOR_WHITE,
     purple: ScreenLogic.LIGHT_CMD_COLOR_PURPLE
 }
-
-let GetCircuitValues = () => {
-
-}
-
-let sendCircuitValues = (data) => {
+let sendCircuitValues = () => {
+    var circuit_history, pool_data;
     conn.query("SELECT * FROM circuit_history", (err, result) => {
-        data = result[0];
-        //console.log(data);
-        for (var i = 0; i < Object.keys(data).length; i++) {
-            sendValue({
-                circuit: Object.keys(data)[i],
-                value: data[Object.keys(data)[i]] || 'off'
-            });
-        }
+        circuit_history = result[0];
     });
+    conn.query("SELECT * FROM pool_data", (err, result) => {
+        pool_data = result[0];
+    });
+    sendValue("circuit", {...circuit_history, ...pool_data});
 }
-
-let sendValue = (data) => {
-    io.emit('circuit', data);
-}
-
-function updateValues(data) {
-    conn.query(`update circuit_history set ${data.circuit}= '${data.value}'`, (err, result) => {
-        if (err) throw err;
+let sendValue = (circuit, value) => {
+    io.emit('circuit', {
+        circuit: circuit,
+        value: value
     });
 }
 
@@ -401,12 +192,13 @@ function setPoolSetPoint(setpoint) {
 }
 
 function setSpaSetPoint(setpoint) {
+    console.log(setpoint);
     THIS.setSetPoint(0, 1, setpoint);
 }
 
 function turnOnWaterFalls() {
     THIS.setCircuitState(0, settings.waterfalls, 1);
-    console.log()
+    //console.log()
     console.log('enabling waterfalls');
 }
 
@@ -426,6 +218,9 @@ function turnOffJets() {
 }
 
 function changePoolColor(color) {
+    conn.query(`UPDATE circuit_history set lights='${color}'`, (err, result) => {
+        if (err) throw err;
+    });
     THIS.sendLightCommand(0, color_codes[color.toString()]);
 }
 
@@ -437,43 +232,44 @@ function turnOffLights() {
     THIS.sendLightCommand(0, color_codes.off);
 }
 
+function sendInitalData() {
+    try {
+        io.emit('sliders', {
+            pool: obj.circuit_data[0].setPoint[0],
+            spa: obj.circuit_data[0].setPoint[1]
+        });
+    } catch {
+        setTimeout(sendInitalData, 1000);
+    }
+}
+
+function startloop() {
+    try {
+        THIS.getVersion();
+        sendInitalData();
+        sendCircuitValues();
+    } catch {
+        setTimeout(startloop, 1000);
+    }
+
+}
 
 io.on('connection', (socket) => {
+    startloop();
 
-    sendCircuitValues(GetCircuitValues());
-
-    setTimeout(() => {
-        sendValue({
-            circuit: "airtemp",
-            value: obj.airTemp
-        });
-        sendValue({
-            circuit: "pooltemp",
-            value: obj.poolTemp
-        });
-        sendValue({
-            circuit: "spatemp",
-            value: obj.spaTemp
-        });
-    }, 1000);
-
-    //console.log('New user connected');
+    socket.on('reload', (data) => {
+        startloop();
+    });
 
     socket.on('circuit', (data) => {
-        // data.circuit = waterfalls, jets, lights
-        // data.value = on off red blue...
-        //console.log("New circuit change: " + data);
-        updateValues(data);
         http.get("http://localhost:3000/circuit/" + data.circuit + "/" + data.value, (resp) => {
             var data = '';
             resp.on('data', (chunk) => {
                 data += chunk;
             });
-
-            // The whole response has been received. Print out the result.
             resp.on('end', () => {
-                //console.log(data);
                 socket.emit('response', data);
+                console.log(data);
             });
         });
     });
@@ -481,4 +277,14 @@ io.on('connection', (socket) => {
 });
 
 server.listen(3000);
-Start();
+function dbUpdater() {
+    exec("start cmd.exe /K node db-updater.js", (error, stdout, stderr) => {
+        if (error || stderr) {
+            console.log(`[ERROR]: ${error.message}`);
+            return;
+        }
+        console.log(`[STDOUT] db-updater: ${stdout}`);
+    });
+}
+
+dbUpdater();
