@@ -1,8 +1,5 @@
 const socket = io('localhost:3000');
 
-let poolTempInput = document.getElementById("PoolTemp");
-let spaTempInput = document.getElementById("SpaTemp");
-
 let jets = document.getElementById("jets");
 let waterfalls = document.getElementById("waterfalls");
 let cleaning = document.getElementById("cleaning");
@@ -56,11 +53,11 @@ $("#spa").roundSlider({
     }
 });
 
-poolTempInput.addEventListener('input', function (evt) {
+poolSlider.addEventListener('input', function (evt) {
      poolSetLabel.innerHTML = this.value;
 });
 
-spaTemp.addEventListener('input', function (evt) {
+spaSlider.addEventListener('input', function (evt) {
      spaSetLabel.innerHTML = this.value;
 });
 
