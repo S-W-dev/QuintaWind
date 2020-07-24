@@ -11,6 +11,7 @@
 </head>
 
 <body>
+    <div style="position: absolute; padding-left: 10px; padding-top: 5px;"><p style="display: inline;">Version: </p><p style="display: inline" id="version">8888</p></div>
     <h1 class="text-center" style="padding-top: 16px; width: 100%;">Control Panel</h1>
     <br><br>
     <!-- <div class="table-responsive" style="width: 100%;">
@@ -64,50 +65,48 @@
             </tbody>
         </table>
     </div> -->
-        <div class="container" style="text-align: center;">
-            <div id="temp" class="row">
-                <div class="col">
-                    <input id="poolSlider" class="custom-range" type="range" value="85" min="40" max="104" step="1" name="PoolTemp">
-                    <p style="display: inline">Set Temperature: </p><p id="poolSet" style="display: inline">85</p><p style="display: inline">&deg</p>
-                    <br />
-                    <p style="display: inline">Actual Temperature: </p><p id="poolTemp" style="display: inline">85</p><p style="display: inline">&deg</p>
-                </div>
-                <div class="col">
-                    <input id="spaSlider" class="custom-range" type="range" value="85" min="40" max="104" step="1" name="SpaTemp">
-                    <p style="display: inline">Set Temperature: </p><p id="spaSet" style="display: inline">85</p><p style="display:inline">&deg</p>
-                    <br />
-                    <p style="display: inline">Actual Temperature: </p><p id="spaTemp" style="display: inline">85</p><p style="display: inline">&deg</p>
-                </div>
-                <!--<div class="col arc-slider-col">
-                    <div class="rslider arc-slider" id="pool"></div>
-                    <p class="TempLabel" id="PoolLabel">85&deg</p>
-                </div>-->
+    <div class="container" style="text-align: center;">
+        <div id="temp" class="row">
+            <div class="col">
+                <input id="poolSlider" class="custom-range" type="range" value="85" min="40" max="104" step="1" name="PoolTemp">
+                <p style="display: inline">Set Temperature: </p><p id="poolSet" style="display: inline">85</p><p style="display: inline">&deg</p>
+                <br />
+                <p style="display: inline">Actual Temperature: </p><p id="poolTemp" style="display: inline">85</p><p style="display: inline">&deg</p>
             </div>
-            <!--<div id="temp" class="row">-->
-
-                
-                <!--<div class="col arc-slider-col">
-                    <div class="rslider arc-slider" id="spa"></div>
-                    <p class="TempLabel" id="SpaLabel">85&deg</p>
-                 </div>-->
-            <!--</div>-->
-            <hr>
-            <div class="row">
-                <div id="jets" class="col">
-                    <p style="margin-bottom: 0px;">Jets</p><input id="jets" type="checkbox">
-                </div>
-                <div id="waterfalls" class="col">
-                    <p style="margin-bottom: 0px;">Waterfall(s)</p><input id="waterfalls" type="checkbox">
-                </div>
-                <div id="cleaner" class="col">
-                    <p style="margin-bottom: 0px;">Cleaning System</p><input id="cleaning" type="checkbox">
-                </div>
+            <div class="col">
+                <input id="spaSlider" class="custom-range" type="range" value="85" min="40" max="104" step="1" name="SpaTemp">
+                <p style="display: inline">Set Temperature: </p><p id="spaSet" style="display: inline">85</p><p style="display:inline">&deg</p>
+                <br />
+                <p style="display: inline">Actual Temperature: </p><p id="spaTemp" style="display: inline">85</p><p style="display: inline">&deg</p>
             </div>
-            <hr>
-            <div id="lights" class="row">
-                <div class="col"></div>
+            <!--<div class="col arc-slider-col">
+                <div class="rslider arc-slider" id="pool"></div>
+                <p class="TempLabel" id="PoolLabel">85&deg</p>
+            </div>-->
+        </div>
+        <!--<div id="temp" class="row">-->
+        <!--<div class="col arc-slider-col">
+            <div class="rslider arc-slider" id="spa"></div>
+            <p class="TempLabel" id="SpaLabel">85&deg</p>
+         </div>-->
+        <!--</div>-->
+        <hr>
+        <div class="row">
+            <div id="jets" class="col">
+                <p style="margin-bottom: 0px;">Jets</p><input id="jets" type="checkbox">
+            </div>
+            <div id="waterfalls" class="col">
+                <p style="margin-bottom: 0px;">Waterfall(s)</p><input id="waterfalls" type="checkbox">
+            </div>
+            <div id="cleaner" class="col">
+                <p style="margin-bottom: 0px;">Cleaning System</p><input id="cleaning" type="checkbox">
             </div>
         </div>
+        <hr>
+        <div id="lights" class="row">
+            <div class="col"></div>
+        </div>
+    </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/roundslider.min.js"></script>
