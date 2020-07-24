@@ -23,6 +23,108 @@ let conn = mysql.createConnection(settings.mysqlconnection);
 let server = http.createServer(app);
 let io = socket(server);
 
+let unit;
+let obj;
+let THIS;
+
+
+function InitPentair(pentair, callback) {
+    let remote = new ScreenLogic.RemoteLogin(pentair);
+    remote.on('gatewayFound', function (_unit) {
+        remote.close();
+        if (_unit && _unit.gatewayFound) {
+            unit = _unit;
+            console.log('unit ' + settings.pentair + ' found at ' + _unit.ipAddr + ':' + _unit.port);
+            callback();
+        } else {
+            console.log('no unit found by that name');
+        }
+    });
+    remote.connect();
+}
+
+let connect = (client) => {
+    var temp = {};
+    client.on('loggedIn', function () {
+        this.getVersion();
+        THIS = this;
+        THIS.StartLoop = THIS.getVersion;
+    }).on('version', function (version) {
+        this.getPoolStatus();
+        obj.version = version.version;
+    }).on('poolStatus', function (status) {
+        this.getChemicalData();
+        obj.status = status.ok;
+        obj.poolTemp = status.currentTemp[0];
+        obj.spaTemp = status.currentTemp[1];
+        obj.airTemp = status.airTemp;
+        obj.saltPPM = status.saltPPM;
+        obj.pH = status.pH;
+        obj.saturation = status.saturation;
+        obj.isSpaActive = status.isSpaActive();
+        obj.isPoolActive = status.isPoolActive();
+        temp.circuit_data = status;
+    }).on('chemicalData', function (chemData) {
+        this.getSaltCellConfig();
+        obj.calcium = chemData.calcium;
+        obj.cyanuricAcid = chemData.cyanuricAcid;
+        obj.alkalinity = chemData.alkalinity;
+    }).on('saltCellConfig', function (saltCellConfig) {
+        this.getControllerConfig();
+        obj.saltCellInstalled = saltCellConfig.installed;
+    }).on('controllerConfig', function (config) {
+        obj.degC = config.degC;
+        obj.circuit_data = [];
+        obj.circuit_data[0] = temp.circuit_data;
+        obj.circuit_data[1] = config;
+
+        if (!obj.isSpaActive == "1") {
+            obj.spaTemp = obj.spaTemp + " (Last Active)";
+        }
+        if (!obj.isPoolActive == "1") {
+            obj.poolTemp = obj.poolTemp + " (Last Active)";
+        }
+
+    }).on('loginFailed', function () {
+        client.close();
+        throw "Unable to login";
+    });
+    client.connect();
+}
+
+let connection;
+let Start = () => {
+    InitPentair(settings.pentair, () => {
+        connection = new ScreenLogic.UnitConnection(unit.port, unit.ipAddr, settings.password)
+        obj = {};
+        connect(connection);
+        setInterval(() => {
+            obj = {};
+            THIS.StartLoop();
+            setTimeout(uploadData, 1000);
+        }, 9000)
+    });
+}
+
+let uploadData = () => {
+    try {
+        values = [];
+        values.push(Object.values(obj));
+        values[0].pop();
+        var error;
+        conn.query(`INSERT INTO pool_data (version, status, poolTemp, spaTemp, airTemp, saltPPM, pH, saturation, isSpaActive, isPoolActive, calcium, cyanuricAcid, alkalinity, saltCellInstalled, degC) VALUES (?)`, values, (err, result) => {
+            if (err) error = err;
+            //console.log(error);
+            console.log("Uploaded data");
+        });
+        if (error) throw error;
+    } catch (x) {
+        console.log(x);
+    }
+sendCircuitValues();
+}
+
+
 
 app.get("/data", (req, res) => {
     try {
@@ -37,96 +139,101 @@ app.get("/data", (req, res) => {
     }
 });
 app.get("/circuit/*", (req, res) => {
-    var params = req.url.split("/");
-    if (params.length == 4) {
-        var circuit = params[2];
-        var value = params[3];
-        switch (circuit) {
-            case "waterfalls":
-                conn.query(`UPDATE circuit_history set waterfalls='${value}'`, (err, result) => {
-                    if (err) throw err;
-                });
-                switch (value) {
-                    case "on":
-                        turnOnWaterFalls();
+    //connection = new ScreenLogic.UnitConnection(unit.port, unit.ipAddr, settings.password);
+    setTimeout(()=>{
+
+        var params = req.url.split("/");
+        if (params.length == 4) {
+            var circuit = params[2];
+            var value = params[3];
+            switch (circuit) {
+                case "waterfalls":
+                    conn.query(`UPDATE circuit_history set waterfalls='${value}'`, (err, result) => {
+                        if (err) throw err;
+                    });
+                    switch (value) {
+                        case "on":
+                            turnOnWaterFalls();
+                            res.send("Success!");
+                            break;
+                        case "off":
+                            turnOffWaterFalls();
+                            res.send("Success!");
+                            break;
+                        default:
+                            res.send("Invalid value");
+                            break;
+                    }
+                    break;
+                case "jets":
+                    conn.query(`UPDATE circuit_history set jets='${value}'`, (err, result) => {
+                        if (err) throw err;
+                    });
+                    switch (value) {
+                        case "on":
+                            turnOnJets();
+                            res.send("Success!");
+                            break;
+                        case "off":
+                            turnOffJets();
+                            res.send("Success!");
+                            break;
+                        default:
+                            res.send("Invalid value");
+                            break;
+                    }
+                    break;
+                case "pool":
+                    switch (value) {
+                        case "on":
+                            //turn on heater TODO
+                            break;
+                        case "off":
+                            //turn off heater TODO
+                            break;
+                        default:
+                            //console.log("Pool: " + value);
+                            try {
+                                value = parseInt(value);
+                                setPoolSetPoint(value);
+                                res.send("Sucess!");
+                            } catch {
+                                res.send("Invalid value")
+                            }
+                    }
+                    break;
+                case "spa":
+                    switch (value) {
+                        case "on":
+                            //turn on heater TODO
+                            break;
+                        case "off":
+                            //turn off heater TODO
+                            break;
+                        default:
+                            try {
+                                value = parseInt(value);
+                                setSpaSetPoint(value);
+                            } catch {
+                                res.send("Invalid value")
+                            }
+                    }
+                    break;
+                case "lights":
+                    if (Object.keys(color_codes).includes(value)) {
+                        changePoolColor(value);
                         res.send("Success!");
-                        break;
-                    case "off":
-                        turnOffWaterFalls();
-                        res.send("Success!");
-                        break;
-                    default:
-                        res.send("Invalid value");
-                        break;
-                }
-                break;
-            case "jets":
-                conn.query(`UPDATE circuit_history set jets='${value}'`, (err, result) => {
-                    if (err) throw err;
-                });
-                switch (value) {
-                    case "on":
-                        turnOnJets();
-                        res.send("Success!");
-                        break;
-                    case "off":
-                        turnOffJets();
-                        res.send("Success!");
-                        break;
-                    default:
-                        res.send("Invalid value");
-                        break;
-                }
-                break;
-            case "pool":
-                switch (value) {
-                    case "on":
-                        //turn on heater TODO
-                        break;
-                    case "off":
-                        //turn off heater TODO
-                        break;
-                    default:
-                        //console.log("Pool: " + value);
-                        try {
-                            value = parseInt(value);
-                            setPoolSetPoint(value);
-                            res.send("Sucess!");
-                        } catch {
-                            res.send("Invalid value")
-                        }
-                }
-                break;
-            case "spa":
-                switch (value) {
-                    case "on":
-                        //turn on heater TODO
-                        break;
-                    case "off":
-                        //turn off heater TODO
-                        break;
-                    default:
-                        try {
-                            value = parseInt(value);
-                            setSpaSetPoint(value);
-                        } catch {
-                            res.send("Invalid value")
-                        }
-                }
-                break;
-            case "lights":
-                if (Object.keys(color_codes).includes(value)) {
-                    changePoolColor(value);
-                    res.send("Success!");
-                } else res.send("Invalid color code");
-                break;
-            default:
-                res.send("Invalid request.");
-                break;
+                    } else res.send("Invalid color code");
+                    break;
+                default:
+                    res.send("Invalid request.");
+                    break;
+            }
+        } else {
+            res.send("Invalid request.");
         }
-    } else {
-        res.send("Invalid request.");
-    }
+
+    }, 1000);
 });
 app.get("/cp", (req, res) => {
     res.send("<script>window.location.href='/controlpanel';</script>");
@@ -170,20 +277,24 @@ let color_codes = {
     purple: ScreenLogic.LIGHT_CMD_COLOR_PURPLE
 }
 let sendCircuitValues = () => {
-    var circuit_history, pool_data;
-    conn.query("SELECT * FROM circuit_history", (err, result) => {
-        circuit_history = result[0];
+    conn.query("SELECT * FROM circuit_history", (err, result1) => {
+        var circuit_history = result1[0];
+        conn.query("SELECT * FROM pool_data", (err, result2) => {
+            var pool_data = result2[result2.length - 1];
+            setTimeout(() => {
+                //console.log(circuit_history);
+                //console.log(circuit_history, pool_data);
+                sendValue({
+                    ...pool_data,
+                    ...circuit_history
+            });
+            }, 1000);
+        });
     });
-    conn.query("SELECT * FROM pool_data", (err, result) => {
-        pool_data = result[0];
-    });
-    sendValue("circuit", {...circuit_history, ...pool_data});
 }
-let sendValue = (circuit, value) => {
-    io.emit('circuit', {
-        circuit: circuit,
-        value: value
-    });
+let sendValue = (value) => {
+    //console.log(value);
+    io.emit('circuit', value);
 }
 
 function setPoolSetPoint(setpoint) {
@@ -197,8 +308,8 @@ function setSpaSetPoint(setpoint) {
 }
 
 function turnOnWaterFalls() {
-    THIS.setCircuitState(0, settings.waterfalls, 1);
-    //console.log()
+    //console.log(THIS);
+    THIS.setCircuitState(0, 502, 1);
     console.log('enabling waterfalls');
 }
 
@@ -224,41 +335,12 @@ function changePoolColor(color) {
     THIS.sendLightCommand(0, color_codes[color.toString()]);
 }
 
-function turnOnLights() {
-    THIS.sendLightCommand(0, color_codes.on);
-}
-
-function turnOffLights() {
-    THIS.sendLightCommand(0, color_codes.off);
-}
-
-function sendInitalData() {
-    try {
-        io.emit('sliders', {
-            pool: obj.circuit_data[0].setPoint[0],
-            spa: obj.circuit_data[0].setPoint[1]
-        });
-    } catch {
-        setTimeout(sendInitalData, 1000);
-    }
-}
-
-function startloop() {
-    try {
-        THIS.getVersion();
-        sendInitalData();
-        sendCircuitValues();
-    } catch {
-        setTimeout(startloop, 1000);
-    }
-
-}
 
 io.on('connection', (socket) => {
-    startloop();
+    sendCircuitValues();
 
     socket.on('reload', (data) => {
-        startloop();
+        sendCircuitValues();
     });
 
     socket.on('circuit', (data) => {
@@ -276,6 +358,13 @@ io.on('connection', (socket) => {
 
 });
 
+//let THIS;
+
+// InitPentair(settings.pentair, () => {
+// connection = new ScreenLogic.UnitConnection(unit.port, unit.ipAddr, settings.password);
+// THIS = connection;
+// });
+
 server.listen(3000);
 function dbUpdater() {
     exec("start cmd.exe /K node db-updater.js", (error, stdout, stderr) => {
@@ -286,5 +375,6 @@ function dbUpdater() {
         console.log(`[STDOUT] db-updater: ${stdout}`);
     });
 }
+Start();
 
-dbUpdater();
+//dbUpdater();
