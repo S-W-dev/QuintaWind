@@ -1,14 +1,18 @@
 const socket = io('localhost:3000');
 
-//let poolTemp = document.getElementById("PoolTemp");
-//let spaTemp = document.getElementById("SpaTemp");
+let poolTempInput = document.getElementById("PoolTemp");
+let spaTempInput = document.getElementById("SpaTemp");
 
-let jets = document.getElementById("Jets");
-let waterfalls = document.getElementById("Waterfalls");
-let cleaning = document.getElementById("Cleaning");
+let jets = document.getElementById("jets");
+let waterfalls = document.getElementById("waterfalls");
+let cleaning = document.getElementById("cleaning");
 
-let poolTempLabel = document.getElementById("PoolLabel");
-let spaTempLabel = document.getElementById("SpaLabel");
+let poolSlider = document.getElementById("poolSlider");
+let spaSlider = document.getElementById("spaSlider");
+let poolSetLabel = document.getElementById("poolSet");
+let spaSetLabel = document.getElementById("spaSet");
+
+let read_only = ["version", "status", "poolTemp", "spaTemp", "airTemp", "saltPPM", "ph", "saturation", "isSpaActive", "isPoolActive", "calcium", "cyanuricAcid", "alkalinity", "saltCellInstalled", "degC"];
 
 //let ////JetsLabel] = document.getElementById("////JetsLabel]]");
 //let //WaterfallsLabel = document.getElementById("//WaterfallsLabel");
@@ -52,13 +56,13 @@ $("#spa").roundSlider({
     }
 });
 
-// poolTemp.addEventListener('input', function (evt) {
-//     poolTempLabel.innerHTML = this.value;
-// });
+poolTempInput.addEventListener('input', function (evt) {
+     poolSetLabel.innerHTML = this.value;
+});
 
-// spaTemp.addEventListener('input', function (evt) {
-//     spaTempLabel.innerHTML = this.value;
-// });
+spaTemp.addEventListener('input', function (evt) {
+     spaSetLabel.innerHTML = this.value;
+});
 
 jets.addEventListener('input', function (evt) {
     if (this.checked) {
@@ -99,63 +103,55 @@ socket.on('response', (data) => {
 });
 
 socket.on('circuit', (data) => {
-    var circuit = data.circuit,
-        value = data.value;
-    console.log(data.circuit);
-    switch (circuit) {
-        case "waterfalls":
-            if (data.value == "on") {
-                ////WaterfallsLabel.innerHTML = "Enabled";
-                waterfalls.checked = true;
-            } else {
-                waterfalls.checked = false;
+    for (var i = 0; i < Object.keys(data).length; i++) {
+        if (read_only.includes(Object.keys(data)[i])) {
+            //readonly, update values accordingly
+            try {
+                document.getElementById(Object.keys(data)[i]).innerHTML = Object.values(data)[i];
+            } catch {
+                console.log("You didnt add a p tag for this one");
             }
-            break;
-        case "jets":
-            console.log(data.value);
-            if (data.value == "on") {
-                jets.checked = true;
-                ////JetsLabel].innerHTML = "Enabled";
-            } else {
-                jets.checked = false;
-            }
-            break;
-        case "cleaner":
-            if (data.value == "on") {
-                cleaning.checked = true;
-                ////cleaningLabel.innerHTML = "Enabled";
-            } else {
-                cleaning.checked = false;
-            }
-            break;
-        case "pooltemp":
-            if (data.value.toString().split(" ").length > 1) {
-                poolTempLabel.innerHTML = data.value.split(" ")[0] + "&deg (Last)";
-            } else {
-                poolTempLabel.innerHTML = data.value + "&deg";
-            }
-            break;
-        case "spatemp":
-            if (data.value.toString().split(" ").length > 1) {
-                spaTempLabel.innerHTML = data.value.split(" ")[0] + "&deg (Last)";
-            } else {
-                spaTempLabel.innerHTML = data.value + "&deg";
-            }
-            break;
-        case "pool_setpoint":
-            $("#pool").roundSlider({
-                value: data.value
-            });
-            break;
-        case "spa_setpoint":
-            $("#pool").roundSlider({
-                value: data.value
-            });
-            break;
-        default:
-            console.log("Invalid Circuit")
-            break;
+        }
     }
+    if (data.waterfalls == "on") {
+        ////WaterfallsLabel.innerHTML = "Enabled";
+        waterfalls.checked = true;
+    } else {
+        waterfalls.checked = false;
+    }
+    if (data.jets == "on") {
+        jets.checked = true;
+        ////JetsLabel].innerHTML = "Enabled";
+    } else {
+        jets.checked = false;
+    }
+    if (data.cleaner == "on") {
+        cleaning.checked = true;
+        ////cleaningLabel.innerHTML = "Enabled";
+    } else {
+        cleaning.checked = false;
+    }
+    poolSlider.value = data.pool_setpoint;
+    spaSlider.value = data.pool_setpoint;
+    poolSetLabel.innerHTML = data.pool_setpoint;
+    spaSetLabel.innerHTML = data.spa_setpoint;
+    /*if (data.poolTemp.toString().split(" ").length > 1) {
+        poolTempLabel.innerHTML = data.value.split(" ")[0] + "&deg (Last)";
+    } else {
+        poolTempLabel.innerHTML = data.value + "&deg";
+    }
+    if (data.spaTemp.toString().split(" ").length > 1) {
+        spaTempLabel.innerHTML = data.value.split(" ")[0] + "&deg (Last)";
+    } else {
+        spaTempLabel.innerHTML = data.value + "&deg";
+    }*/
+
+    /*$("#pool").roundSlider({
+        value: data.pool_setpoint
+    });
+    $("#pool").roundSlider({
+        value: data.spa_setpoint
+    });*/
 });
 
 Circuit = (circuitName, value) => {
