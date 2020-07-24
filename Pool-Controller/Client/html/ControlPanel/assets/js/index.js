@@ -8,6 +8,8 @@ let poolSlider = document.getElementById("poolSlider");
 let spaSlider = document.getElementById("spaSlider");
 let poolSetLabel = document.getElementById("poolSet");
 let spaSetLabel = document.getElementById("spaSet");
+//let poolTemp = document.getElementById("poolTemp");
+//let spaTemp = document.getElementById("spaTemp");
 
 let read_only = ["version", "status", "poolTemp", "spaTemp", "airTemp", "saltPPM", "ph", "saturation", "isSpaActive", "isPoolActive", "calcium", "cyanuricAcid", "alkalinity", "saltCellInstalled", "degC"];
 

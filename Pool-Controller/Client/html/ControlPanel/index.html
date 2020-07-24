@@ -11,7 +11,7 @@
 </head>
 
 <body>
-    <div style="position: absolute; padding-left: 10px; padding-top: 5px;"><p style="display: inline;">Version: </p><p style="display: inline" id="version">8888</p></div>
+    <div style="position: absolute; padding-left: 10px; padding-top: 5px;"><p id="version">8888</p></div>
     <h1 class="text-center" style="padding-top: 16px; width: 100%;">Control Panel</h1>
     <br><br>
     <!-- <div class="table-responsive" style="width: 100%;">
@@ -68,12 +68,14 @@
     <div class="container" style="text-align: center;">
         <div id="temp" class="row">
             <div class="col">
+                <h5>Pool</h5>
                 <input id="poolSlider" class="custom-range" type="range" value="85" min="40" max="104" step="1" name="PoolTemp">
                 <p style="display: inline">Set Temperature: </p><p id="poolSet" style="display: inline">85</p><p style="display: inline">&deg</p>
                 <br />
                 <p style="display: inline">Actual Temperature: </p><p id="poolTemp" style="display: inline">85</p><p style="display: inline">&deg</p>
             </div>
             <div class="col">
+                <h5>Spa</h5>
                 <input id="spaSlider" class="custom-range" type="range" value="85" min="40" max="104" step="1" name="SpaTemp">
                 <p style="display: inline">Set Temperature: </p><p id="spaSet" style="display: inline">85</p><p style="display:inline">&deg</p>
                 <br />
